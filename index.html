@@ -11,29 +11,42 @@
       overflow: hidden;
       background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #8d65bd);
       background-size: 400% 400%;
-      animation: gradientMove 20s infinite alternate;
+      animation: gradientBackground 20s infinite alternate;
     }
-
+    
     h1 {
       font-size: 3rem;
       text-align: center;
       color: white;
       margin: 0;
-      padding: 25rem;
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-300%);
+      animation: moveTitleToCenter 1.5s forwards;
     }
 
-        @keyframes gradientMove {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-    </style>
+    @keyframes gradientBackground {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    @keyframes moveTitleToCenter {
+      0% {
+        transform: translateY(-300%);
+      }
+      100% {
+        transform: translateY(-50%);
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>WhosWiFi</h1>
