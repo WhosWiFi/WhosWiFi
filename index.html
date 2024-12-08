@@ -143,6 +143,7 @@
       display: flex;
       align-items: center;
       margin-top: 1rem;
+      position: relative;
     }
 
     .prompt-line::before {
@@ -152,25 +153,42 @@
       text-shadow: 0 0 2px #0f0;
     }
 
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .typed-text {
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--neon-text-color);
+      text-shadow: 0 0 2px var(--neon-text-color);
+      pointer-events: none;
+      white-space: pre;
+    }
+
     .cursor {
       display: inline-block;
       width: 8px;
       height: 16px;
       background: var(--neon-text-color);
       animation: blink 1s infinite;
-      margin-left: 0;
+      position: absolute;
+      left: 0;
+      top: 2px;
       box-shadow: 0 0 5px var(--neon-text-color);
     }
 
     #terminal-input {
       background: transparent;
       border: none;
-      color: var(--neon-text-color);
+      color: transparent;
+      caret-color: transparent;
       font-family: 'Share Tech Mono', monospace;
       font-size: 1rem;
       outline: none;
-      width: calc(100% - 100px);
-      margin-left: 10px;
+      width: 100%;
       text-shadow: 0 0 2px var(--neon-text-color);
     }
 
@@ -223,13 +241,45 @@ INITIALIZING SYSTEM...
 Type a command (apps, blog, shop, about, contact, login)
       </div>
       <div class="prompt-line">
-        <span class="cursor"></span><input type="text" id="terminal-input" autofocus>
+        <div class="input-wrapper">
+          <span class="typed-text"></span>
+          <span class="cursor"></span>
+          <input type="text" id="terminal-input">
+        </div>
       </div>
     </div>
   </div>
   <script>
     const input = document.getElementById('terminal-input');
-    input.addEventListener('keypress', function(e) {
+    const typedText = document.querySelector('.typed-text');
+    const cursor = document.querySelector('.cursor');
+
+    // Focus input as soon as page loads
+    window.addEventListener('load', () => {
+      input.focus();
+    });
+
+    // Refocus input if user clicks anywhere on the page
+    document.addEventListener('click', () => {
+      input.focus();
+    });
+
+    // Prevent losing focus
+    input.addEventListener('blur', () => {
+      setTimeout(() => input.focus(), 10);
+    });
+
+    // Handle input with requestAnimationFrame for better performance
+    let rafId;
+    input.addEventListener('input', () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        typedText.textContent = input.value;
+        cursor.style.left = `${typedText.offsetWidth}px`;
+      });
+    });
+
+    input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         const command = input.value.toLowerCase().trim();
         switch(command) {
@@ -253,6 +303,8 @@ Type a command (apps, blog, shop, about, contact, login)
             break;
         }
         input.value = '';
+        typedText.textContent = '';
+        cursor.style.left = '0';
       }
     });
   </script>
