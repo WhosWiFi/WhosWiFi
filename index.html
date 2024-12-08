@@ -4,51 +4,257 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WhosWiFi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --neon-text-color: #64ffda;
+      --neon-border-color: #08f;
+    }
+
     body {
       height: 100vh;
       margin: 0;
-      overflow: hidden;
-      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #8d65bd);
-      background-size: 400% 400%;
-      animation: gradientBackground 20s infinite alternate;
+      overflow-x: hidden;
+      background-color: #0a0a0a;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--neon-text-color);
+    }
+    
+    nav {
+      position: fixed;
+      width: 100vw;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      left: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: stretch;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--neon-text-color);
+    }
+
+    .nav-links li {
+      position: relative;
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-links li:not(:last-child)::after {
+      content: "||";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-text-color);
+      opacity: 0.5;
+    }
+
+    .nav-links a {
+      color: var(--neon-text-color);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      padding: 1rem 0;
+      display: block;
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      background: rgba(100, 255, 218, 0.1);
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .terminal-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.15),
+          rgba(0, 0, 0, 0.15) 1px,
+          transparent 1px,
+          transparent 2px
+        );
     }
     
     h1 {
-      font-size: 3rem;
+      font-size: 3.5rem;
       text-align: center;
-      color: white;
       margin: 0;
+      animation: textShadow 1.5s infinite alternate;
+      letter-spacing: 4px;
+    }
+
+    .terminal-text {
+      width: 80%;
+      height: 50vh;
+      max-width: 800px;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid var(--neon-text-color);
+      border-radius: 10px;
+      position: relative;
+      overflow-y: auto;
+      font-size: 1rem;
+      line-height: 1.4;
+      box-shadow: 0 0 20px rgba(100, 255, 218, 0.2),
+                  inset 0 0 20px rgba(100, 255, 218, 0.1);
+      transform: perspective(1000px) rotateX(2deg);
+      transform-origin: 50% 0;
+    }
+
+    .terminal-text::before {
+      content: '';
       position: absolute;
-      width: 100%;
-      top: 50%;
-      transform: translateY(-300%);
-      animation: moveTitleToCenter 1.5s forwards;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(100, 255, 218, 0.1) 0%,
+        transparent 2%
+      );
+      pointer-events: none;
+      border-radius: 10px;
     }
 
-    @keyframes gradientBackground {
+    .boot-sequence {
+      color: var(--neon-text-color);
+      margin-bottom: 2rem;
+      white-space: pre-line;
+      text-shadow: 0 0 2px var(--neon-text-color);
+    }
+
+    .prompt-line {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .prompt-line::before {
+      content: "SYSTEM>";
+      color: #0f0;
+      margin-right: 1rem;
+      text-shadow: 0 0 2px #0f0;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: var(--neon-text-color);
+      animation: blink 1s infinite;
+      margin-left: 0;
+      box-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    #terminal-input {
+      background: transparent;
+      border: none;
+      color: var(--neon-text-color);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      outline: none;
+      width: calc(100% - 100px);
+      margin-left: 10px;
+      text-shadow: 0 0 2px var(--neon-text-color);
+    }
+
+    @keyframes textShadow {
       0% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
+        text-shadow: 0 0 10px var(--neon-text-color),
+                     0 0 20px var(--neon-text-color),
+                     0 0 30px var(--neon-text-color);
       }
       100% {
-        background-position: 0% 50%;
+        text-shadow: 0 0 20px var(--neon-text-color),
+                     0 0 30px var(--neon-text-color),
+                     0 0 40px var(--neon-text-color);
       }
     }
 
-    @keyframes moveTitleToCenter {
-      0% {
-        transform: translateY(-300%);
-      }
-      100% {
-        transform: translateY(-50%);
-      }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <h1>WhosWiFi</h1>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="apps.html">Apps</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#login">Login/Register</a></li>
+    </ul>
+  </nav>
+  <div class="terminal-container">
+    <h1>WhosWiFi</h1>
+    <div class="terminal-text">
+      <div class="boot-sequence">
+INITIALIZING SYSTEM...
+[OK] Memory Check Complete
+[OK] System Integrity Verified
+[OK] Network Protocols Initialized
+[OK] Security Systems Online
+[OK] Terminal Interface Ready
+
+********************************
+*      SECURE TERMINAL v2.4    *
+*     ACCESS LEVEL: PUBLIC     *
+********************************
+
+Type a command (apps, blog, shop, about, contact, login)
+      </div>
+      <div class="prompt-line">
+        <span class="cursor"></span><input type="text" id="terminal-input" autofocus>
+      </div>
+    </div>
+  </div>
+  <script>
+    const input = document.getElementById('terminal-input');
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const command = input.value.toLowerCase().trim();
+        switch(command) {
+          case 'apps':
+            window.location.href = 'apps.html';
+            break;
+          case 'blog':
+            window.location.href = '#blog';
+            break;
+          case 'shop':
+            window.location.href = '#shop';
+            break;
+          case 'about':
+            window.location.href = '#about';
+            break;
+          case 'contact':
+            window.location.href = '#contact';
+            break;
+          case 'login':
+            window.location.href = '#login';
+            break;
+        }
+        input.value = '';
+      }
+    });
+  </script>
 </body>
 </html>
