@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Testing</title>
+  <title>Exploiting Common WiFi Vulnerabilities</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
@@ -173,15 +173,73 @@
   <div class="blog-container">
     <article class="blog-post">
       <header class="blog-post-header">
-        <h2 class="blog-post-title">Testing</h2>
-        <div class="blog-post-meta">Posted by WhosWiFi | 2024-12-09</div>
+        <h2 class="blog-post-title">Exploiting Common WiFi Vulnerabilities</h2>
+        <div class="blog-post-meta">Posted by WhosWiFi | 2024-12-09 | Category: Security</div>
       </header>
       <div class="blog-post-content">
-        <p>Yes</p>
+        <div class="section">
+  <p>Understanding common WiFi vulnerabilities is crucial for both offensive and defensive security. In this comprehensive guide, we'll explore the most prevalent WiFi security issues and how they can be exploited. Remember: this knowledge should be used responsibly and only on networks you own or have explicit permission to test.</p>
+</div>
 
+<div class="section">
+  <h3>1. WEP Encryption Vulnerabilities</h3>
+  <p>Despite being deprecated, WEP encryption is still found in legacy systems. Its fundamental flaws include:</p>
+  <ul>
+    <li>Weak initialization vectors (IVs)</li>
+    <li>Static encryption keys</li>
+    <li>Lack of proper message integrity</li>
+  </ul>
+  <p>These vulnerabilities can be exploited using tools like Aircrack-ng to recover the network key in minutes.</p>
+</div>
+
+<div class="section">
+  <h3>2. WPS (WiFi Protected Setup) Weaknesses</h3>
+  <p>WPS was designed for convenience but introduces significant security risks:</p>
+  <ul>
+    <li>Brute-force attacks against PIN</li>
+    <li>Design flaws in the protocol</li>
+    <li>Implementation vulnerabilities</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>3. Evil Twin Attacks</h3>
+  <p>This attack involves creating a rogue access point that mimics a legitimate network:</p>
+  <pre><code>hostapd-mana -i wlan0 -c evil_twin.conf</code></pre>
+  <p>Users connecting to the evil twin expose their network traffic to the attacker.</p>
+</div>
+
+<div class="section">
+  <h3>4. KRACK (Key Reinstallation Attack)</h3>
+  <p>This vulnerability affects WPA2 implementations by forcing nonce reuse:</p>
+  <ul>
+    <li>Allows packet replay</li>
+    <li>Possible decryption of encrypted traffic</li>
+    <li>Man-in-the-middle opportunities</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>Defensive Measures</h3>
+  <p>To protect against these vulnerabilities:</p>
+  <ul>
+    <li>Use WPA3 when possible</li>
+    <li>Implement strong passwords</li>
+    <li>Disable WPS</li>
+    <li>Regular firmware updates</li>
+    <li>Network segmentation</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>Conclusion</h3>
+  <p>Understanding these vulnerabilities is essential for network security professionals. Always stay updated with the latest security practices and use this knowledge ethically.</p>
+</div>
       </div>
       <div class="blog-post-tags">
-        <span class="tag">yup</span>
+        <span class="tag">wifi-security</span>
+<span class="tag">penetration-testing</span>
+<span class="tag">network-security</span>
       </div>
     </article>
   </div>

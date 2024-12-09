@@ -11,28 +11,36 @@ const BLOGS_DIR = path.join(__dirname, 'blogs');
 function loadBlogPosts() {
   try {
     const files = fs.readdirSync(BLOGS_DIR);
+    blogPosts = []; // Reset the array before loading
     files.forEach(file => {
-      if (file.endsWith('.html')) {
-        const id = parseInt(file.split('.')[0]);
-        const content = fs.readFileSync(path.join(BLOGS_DIR, file), 'utf8');
-        // Extract title and preview from content using regex
-        const titleMatch = content.match(/<h2 class="blog-post-title">(.*?)<\/h2>/);
-        const metaMatch = content.match(/<div class="blog-post-meta">(.*?)<\/div>/);
-        const previewMatch = content.match(/<div class="blog-post-content">(.*?)<\/div>/s);
-        const tagsMatch = content.match(/<div class="blog-post-tags">(.*?)<\/div>/s);
-        
-        blogPosts.push({
-          id,
-          title: titleMatch ? titleMatch[1] : '',
-          meta: metaMatch ? metaMatch[1] : '',
-          preview: previewMatch ? previewMatch[1].substring(0, 150) + '...' : '',
-          tags: tagsMatch ? tagsMatch[1] : ''
-        });
+      if (file.endsWith('.html') && file !== 'template.html') { // Ignore template file
+        try {
+          const id = parseInt(file.split('.')[0]);
+          const content = fs.readFileSync(path.join(BLOGS_DIR, file), 'utf8');
+          // Extract title and preview from content using regex
+          const titleMatch = content.match(/<h2 class="blog-post-title">(.*?)<\/h2>/);
+          const metaMatch = content.match(/<div class="blog-post-meta">(.*?)<\/div>/);
+          const previewMatch = content.match(/<div class="blog-post-content">(.*?)<\/div>/s);
+          const tagsMatch = content.match(/<div class="blog-post-tags">(.*?)<\/div>/s);
+          
+          if (titleMatch) { // Only add if the file is valid
+            blogPosts.push({
+              id,
+              title: titleMatch[1],
+              meta: metaMatch ? metaMatch[1] : '',
+              preview: previewMatch ? previewMatch[1].substring(0, 150) + '...' : '',
+              tags: tagsMatch ? tagsMatch[1] : ''
+            });
+          }
+        } catch (fileErr) {
+          console.error(`Error processing file ${file}:`, fileErr);
+        }
       }
     });
     blogPosts.sort((a, b) => b.id - a.id); // Sort by newest first
   } catch (err) {
     console.error('Error loading blog posts:', err);
+    blogPosts = []; // Ensure blogPosts is empty on error
   }
 }
 
@@ -115,13 +123,20 @@ app.post('/create_post', function (req, res) {
     return res.status(400).send('Missing required fields');
   }
 
-  const nextId = blogPosts.length > 0 ? Math.max(...blogPosts.map(p => p.id)) + 1 : 1;
+  // More robust ID generation
+  const existingIds = blogPosts.map(post => post.id);
+  const nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
+
   const date = new Date().toISOString().split('T')[0];
   const author = req.body.author || 'Anonymous';
   const category = req.body.category || 'Uncategorized';
   const tags = req.body.tags ? req.body.tags.split(',').map(tag => 
     `<span class="tag">${tag.trim()}</span>`
   ).join('\n') : '';
+
+  // Get the template style
+  const templateStyle = fs.readFileSync(path.join(BLOGS_DIR, 'template.html'), 'utf8')
+    .match(/<style>[\s\S]*?<\/style>/)[0];
 
   // Create the blog post HTML
   const htmlContent = `<!DOCTYPE html>
@@ -133,7 +148,7 @@ app.post('/create_post', function (req, res) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
-  ${fs.readFileSync('blogs/1.html', 'utf8').match(/<style>[\s\S]*?<\/style>/)[0]}
+  ${templateStyle}
 </head>
 <body>
   <nav>
