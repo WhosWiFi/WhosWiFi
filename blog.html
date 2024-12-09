@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiFi's Blog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --neon-text-color: #64ffda;
+      --neon-border-color: #08f;
+    }
+
+    body {
+      margin: 0;
+      padding-top: 60px;
+      background-color: #0a0a0a;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--neon-text-color);
+    }
+    
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: stretch;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--neon-text-color);
+    }
+
+    .nav-links li {
+      position: relative;
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-links li:not(:last-child)::after {
+      content: "||";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-text-color);
+      opacity: 0.5;
+    }
+
+    .nav-links a {
+      color: var(--neon-text-color);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      padding: 1rem 0;
+      display: block;
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      background: rgba(100, 255, 218, 0.1);
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .blog-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .new-post-btn {
+      background: rgba(100, 255, 218, 0.1);
+      border: 1px solid var(--neon-text-color);
+      color: var(--neon-text-color);
+      padding: 0.75rem 1.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+    }
+
+    .new-post-btn:hover {
+      background: rgba(100, 255, 218, 0.2);
+      text-shadow: 0 0 5px var(--neon-text-color);
+      box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+    }
+
+    .blog-post {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--neon-text-color);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 15px rgba(100, 255, 218, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .blog-post:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(100, 255, 218, 0.2);
+    }
+
+    .blog-post-header {
+      border-bottom: 1px solid rgba(100, 255, 218, 0.3);
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .blog-post-title {
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem 0;
+      color: var(--neon-text-color);
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .blog-post-meta {
+      font-size: 0.9rem;
+      color: rgba(100, 255, 218, 0.7);
+    }
+
+    .blog-post-content {
+      line-height: 1.6;
+    }
+
+    .blog-post-preview {
+      max-height: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .blog-post-preview::after {
+      content: "...";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.7) 50%);
+      padding-left: 20px;
+    }
+
+    .blog-post-tags {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: rgba(100, 255, 218, 0.1);
+      padding: 0.25rem 0.75rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+    }
+
+    #post-form {
+      display: none;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid var(--neon-text-color);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(100, 255, 218, 0.1);
+      border: 1px solid var(--neon-text-color);
+      color: var(--neon-text-color);
+      padding: 0.5rem;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .form-group textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+
+    .blog-content {
+      display: none;
+    }
+
+    .blog-content.active {
+      display: block;
+    }
+
+    .back-btn {
+      margin-bottom: 1rem;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      border: 1px solid rgba(100, 255, 218, 0.3);
+      overflow-x: auto;
+    }
+
+    code {
+      background: rgba(100, 255, 218, 0.1);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="/apps">Apps</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#login">Login/Register</a></li>
+    </ul>
+  </nav>
+
+  <div class="blog-container" id="main-content">
+    <div id="blog-list">
+      <button class="new-post-btn" onclick="togglePostForm()">[ NEW POST ]</button>
+      
+      <form id="post-form" action="/create_post" method="POST">
+        <div class="form-group">
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="content">Content (Markdown supported):</label>
+          <textarea id="content" name="content" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="tags">Tags (comma separated):</label>
+          <input type="text" id="tags" name="tags">
+        </div>
+        <div class="form-group">
+          <label for="preview">Preview:</label>
+          <div id="preview" class="content-preview"></div>
+        </div>
+        <input type="hidden" name="date" id="date">
+        <input type="hidden" name="author" value="WhosWiFi">
+        <button type="submit" class="new-post-btn">[ PUBLISH ]</button>
+      </form>
+
+      <div id="blog-posts">
+        <article class="blog-post" onclick="location.href='/blogs/1'">
+          <header class="blog-post-header">
+            <h2 class="blog-post-title">Exploiting Common WiFi Vulnerabilities</h2>
+            <div class="blog-post-meta">Posted by WhosWiFi | 2024-12-09 | Category: Security</div>
+          </header>
+          <div class="blog-post-content">
+            <div class="blog-post-preview">
+              Understanding common WiFi vulnerabilities is crucial for both offensive and defensive security...
+            </div>
+          </div>
+          <div class="blog-post-tags">
+            <span class="tag">wifi-security</span>
+            <span class="tag">penetration-testing</span>
+            <span class="tag">network-security</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePostForm() {
+      const form = document.getElementById('post-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Live preview of markdown content
+    const contentArea = document.getElementById('content');
+    const previewArea = document.getElementById('preview');
+    
+    contentArea.addEventListener('input', function() {
+      previewArea.innerHTML = marked.parse(this.value);
+    });
+
+    // Set current date on form submission
+    document.getElementById('post-form').onsubmit = function() {
+      document.getElementById('date').value = new Date().toISOString().split('T')[0];
+      // Convert markdown to HTML before submission
+      document.getElementById('content').value = marked.parse(document.getElementById('content').value);
+      return true;
+    };
+  </script>
+</body>
+</html>
