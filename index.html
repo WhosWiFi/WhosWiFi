@@ -6,7 +6,7 @@
   <title>WhosWiFi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
   <style>
     :root {
       --neon-text-color: #64ffda;
@@ -90,11 +90,15 @@
     }
     
     h1 {
-      font-size: 3.5rem;
+      font-family: 'VT323', monospace;
+      font-size: 4.5rem;
       text-align: center;
       margin: 0;
       animation: textShadow 1.5s infinite alternate;
-      letter-spacing: 4px;
+      letter-spacing: 3px;
+      font-weight: normal;
+      text-transform: uppercase;
+      transform: skew(-5deg);
     }
 
     .terminal-text {
@@ -234,7 +238,7 @@ INITIALIZING SYSTEM...
 [OK] Terminal Interface Ready
 
 ********************************
-*      SECURE TERMINAL v2.4    *
+*      SECURE TERMINAL v1.0    *
 *     ACCESS LEVEL: PUBLIC     *
 ********************************
 
@@ -284,7 +288,7 @@ Type a command (apps, blog, shop, about, contact, login)
         const command = input.value.toLowerCase().trim();
         switch(command) {
           case 'apps':
-            window.location.href = 'apps.html';
+            window.location.href = '/apps';
             break;
           case 'blog':
             window.location.href = '#blog';
