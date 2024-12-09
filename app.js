@@ -118,6 +118,7 @@ app.post('/create_post', function (req, res) {
   const nextId = blogPosts.length > 0 ? Math.max(...blogPosts.map(p => p.id)) + 1 : 1;
   const date = new Date().toISOString().split('T')[0];
   const author = req.body.author || 'Anonymous';
+  const category = req.body.category || 'Uncategorized';
   const tags = req.body.tags ? req.body.tags.split(',').map(tag => 
     `<span class="tag">${tag.trim()}</span>`
   ).join('\n') : '';
@@ -150,7 +151,7 @@ app.post('/create_post', function (req, res) {
     <article class="blog-post">
       <header class="blog-post-header">
         <h2 class="blog-post-title">${req.body.title}</h2>
-        <div class="blog-post-meta">Posted by ${author} | ${date}</div>
+        <div class="blog-post-meta">Posted by ${author} | ${date} | Category: ${category}</div>
       </header>
       <div class="blog-post-content">
         ${req.body.content}
@@ -173,7 +174,7 @@ app.post('/create_post', function (req, res) {
     blogPosts.unshift({
       id: nextId,
       title: req.body.title,
-      meta: `Posted by ${author} | ${date}`,
+      meta: `Posted by ${author} | ${date} | Category: ${category}`,
       preview: req.body.content.substring(0, 150) + '...',
       tags: tags
     });
