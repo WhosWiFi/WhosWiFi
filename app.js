@@ -155,7 +155,7 @@ app.post('/create_post', function (req, res) {
     <ul class="nav-links">
       <li><a href="/apps">Apps</a></li>
       <li><a href="/blog">Blog</a></li>
-      <li><a href="#shop">Shop</a></li>
+      <li><a href="/shop">Shop</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
       <li><a href="#login">Login/Register</a></li>
@@ -201,6 +201,14 @@ app.post('/create_post', function (req, res) {
 app.get('/shop', function (req, res) {
   fs.readFile('shop.html', function (err, data) {
       res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(data);
+      return res.end();
+    });
+});
+
+app.get('/images/monopoly_dollar', function (req, res) {
+  fs.readFile('images/monopoly_dollar.png', function (err, data) {
+      res.writeHead(200, {'Content-Type': 'image/png'});
       res.write(data);
       return res.end();
     });

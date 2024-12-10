@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiFi's Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-text-color: #64ffda;
+      --neon-border-color: #08f;
+    }
+
+    body {
+      margin: 0;
+      padding-top: 60px;
+      background-color: #0a0a0a;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--neon-text-color);
+    }
+    
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: stretch;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--neon-text-color);
+    }
+
+    .nav-links li {
+      position: relative;
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-links li:not(:last-child)::after {
+      content: "||";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-text-color);
+      opacity: 0.5;
+    }
+
+    .nav-links a {
+      color: var(--neon-text-color);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      padding: 1rem 0;
+      display: block;
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      background: rgba(100, 255, 218, 0.1);
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .shop-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .shop-title {
+      color: var(--neon-text-color);
+      text-align: center;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 10px var(--neon-text-color);
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .product-card {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--neon-text-color);
+      padding: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(100, 255, 218, 0.1);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(100, 255, 218, 0.2);
+    }
+
+    .product-image {
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+
+    .product-info h3 {
+      color: var(--neon-text-color);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.2rem;
+    }
+
+    .product-description {
+      color: rgba(100, 255, 218, 0.7);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .product-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(100, 255, 218, 0.3);
+    }
+
+    .product-price {
+      color: var(--neon-text-color);
+      font-size: 1.2rem;
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .buy-btn {
+      background: rgba(100, 255, 218, 0.1);
+      border: 1px solid var(--neon-text-color);
+      color: var(--neon-text-color);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+    }
+
+    .buy-btn:hover {
+      background: rgba(100, 255, 218, 0.2);
+      text-shadow: 0 0 5px var(--neon-text-color);
+      box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="/apps">Apps</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/shop">Shop</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#login">Login/Register</a></li>
+    </ul>
+  </nav>
+
+  <div class="shop-container">
+    <h1 class="shop-title">[ DIGITAL ARSENAL ]</h1>
+    
+    <div class="products-grid">
+      <div class="product-card">
+        <div class="product-image">
+          <img src="/images/monopoly_dollar" alt="Monopoly Dollar">
+        </div>
+        <div class="product-info">
+          <h3>Monopoly Dollar</h3>
+          <p class="product-description">This is a Monopoly Dollar. It is worth its weight in gold.</p>
+          <div class="product-meta">
+            <span class="product-price">$1</span>
+            <button class="buy-btn">[ ADD TO CART ]</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="https://placehold.co/300x200/0a0a0a/64ffda?text=CipherGuard+Elite" alt="CipherGuard Elite">
+        </div>
+        <div class="product-info">
+          <h3>CipherGuard Elite</h3>
+          <p class="product-description">Military-grade encryption software for secure communications.</p>
+          <div class="product-meta">
+            <span class="product-price">$79.99</span>
+            <button class="buy-btn">[ ADD TO CART ]</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="https://placehold.co/300x200/0a0a0a/64ffda?text=eBook" alt="Sample Product">
+        </div>
+        <div class="product-info">
+          <h3>Cyber Security Guide</h3>
+          <p class="product-description">Comprehensive guide to modern security practices and techniques.</p>
+          <div class="product-meta">
+            <span class="product-price">$29.99</span>
+            <button class="buy-btn">[ ADD TO CART ]</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="https://placehold.co/300x200/0a0a0a/64ffda?text=Course" alt="Sample Product">
+        </div>
+        <div class="product-info">
+          <h3>Ethical Hacking Course</h3>
+          <p class="product-description">Learn penetration testing from industry experts.</p>
+          <div class="product-meta">
+            <span class="product-price">$199.99</span>
+            <button class="buy-btn">[ ADD TO CART ]</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
