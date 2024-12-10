@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About WhosWiFi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-text-color: #64ffda;
+      --neon-border-color: #08f;
+    }
+
+    body {
+      margin: 0;
+      padding-top: 60px;
+      background-color: #0a0a0a;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--neon-text-color);
+    }
+    
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: stretch;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--neon-text-color);
+    }
+
+    .nav-links li {
+      position: relative;
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-links li:not(:last-child)::after {
+      content: "||";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-text-color);
+      opacity: 0.5;
+    }
+
+    .nav-links a {
+      color: var(--neon-text-color);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      padding: 1rem 0;
+      display: block;
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      background: rgba(100, 255, 218, 0.1);
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .about-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+
+    .about-title {
+      color: var(--neon-text-color);
+      text-align: center;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 10px var(--neon-text-color);
+      font-family: 'VT323', monospace;
+      font-size: 3rem;
+    }
+
+    .about-section {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--neon-text-color);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 15px rgba(100, 255, 218, 0.1);
+    }
+
+    .about-section h2 {
+      color: var(--neon-text-color);
+      margin: 0 0 1rem 0;
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .about-section p {
+      color: rgba(100, 255, 218, 0.9);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .feature-list li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: var(--neon-text-color);
+    }
+
+    .tech-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .tech-item {
+      background: rgba(100, 255, 218, 0.1);
+      padding: 0.5rem;
+      text-align: center;
+      border: 1px solid var(--neon-text-color);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/apps">Apps</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/shop">Shop</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a href="/login">Login/Register</a></li>
+    </ul>
+  </nav>
+
+  <div class="about-container">
+    <h1 class="about-title">[ About WhosWiFi ]</h1>
+    
+    <div class="about-section">
+      <h2>[ MISSION ]</h2>
+      <p>WhosWiFi is a cybersecurity-focused platform designed to provide tools, knowledge, and resources to both aspiring and experienced security professionals. Our goal is to create a comprehensive ecosystem where users can learn, share, and acquire the tools they need for their digital security journey.</p>
+    </div>
+
+    <div class="about-section">
+      <h2>[ TECH STACK ]</h2>
+      <div class="tech-stack">
+        <div class="tech-item">Node.js</div>
+        <div class="tech-item">Express</div>
+        <div class="tech-item">HTML5</div>
+        <div class="tech-item">CSS3</div>
+        <div class="tech-item">JavaScript</div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h2>[ VERSION ]</h2>
+      <p>Current System Version: 1.0.0</p>
+      <p>Last Updated: December 2024</p>
+      <p>Maintained by: WhosWiFi</p>
+    </div>
+  </div>
+</body>
+</html>

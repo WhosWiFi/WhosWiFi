@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact WhosWiFi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-text-color: #64ffda;
+      --neon-border-color: #08f;
+    }
+
+    body {
+      margin: 0;
+      padding-top: 60px;
+      background-color: #0a0a0a;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--neon-text-color);
+    }
+    
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: stretch;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--neon-text-color);
+    }
+
+    .nav-links li {
+      position: relative;
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-links li:not(:last-child)::after {
+      content: "||";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-text-color);
+      opacity: 0.5;
+    }
+
+    .nav-links a {
+      color: var(--neon-text-color);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      padding: 1rem 0;
+      display: block;
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      background: rgba(100, 255, 218, 0.1);
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .contact-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .contact-title {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 10px var(--neon-text-color);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .contact-section {
+      background: rgba(100, 255, 218, 0.05);
+      padding: 1.5rem;
+      border: 1px solid var(--neon-text-color);
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-section h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 5px var(--neon-text-color);
+    }
+
+    .contact-info {
+      margin-bottom: 1rem;
+    }
+
+    .contact-method {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .contact-method::before {
+      margin-right: 1rem;
+      color: var(--neon-text-color);
+    }
+
+    .ascii-art {
+      font-family: monospace;
+      white-space: pre;
+      color: var(--neon-text-color);
+      opacity: 0.7;
+      font-size: 0.8rem;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .security-feed {
+      height: 200px;
+      overflow-y: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(100, 255, 218, 0.3);
+    }
+
+    .feed-entry {
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .feed-entry::before {
+      content: "[SCAN] ";
+      color: #0f0;
+    }
+
+    .pgp-key {
+      font-size: 0.7rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border: 1px solid rgba(100, 255, 218, 0.3);
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/apps">Apps</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/shop">Shop</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a href="/login">Login/Register</a></li>
+    </ul>
+  </nav>
+
+  <div class="contact-container">
+    <h1 class="contact-title">[ Have A Question? ]</h1>
+
+    <div class="contact-grid">
+      <div>
+        <div class="contact-section">
+          <h2>[ CONTACT METHODS ]</h2>
+          <div class="contact-info">
+            <div class="contact-method">Email: whoswifi@gmail.com</div>
+            <div class="contact-method">GitHub: github.com/whoswifi</div>
+          </div>
+        </div>
+
+        <div class="contact-section">
+          <h2>[ NETWORK METRICS ]</h2>
+          <p>Current WiFi Network Status:</p>
+          <div class="pgp-key" id="network-metrics">
+            Network SSID: WhosWiFi<br>
+            Signal Strength: <span id="signal">-58</span> dBm<br>
+            Channel: <span id="channel">6</span> (2.4 GHz)<br>
+            Encryption: WPA3-Enterprise<br>
+            Connected Clients: <span id="clients">7</span><br>
+            Bandwidth Usage: <span id="bandwidth">42.8</span> Mbps<br>
+            Packet Loss: <span id="packetLoss">0.02</span>%<br>
+            Network Uptime: 99.99%<br>
+            Last Security Scan: <span id="lastScan">2</span> minutes ago
+          </div>
+        </div>
+        <script>
+          function updateMetrics() {
+            // Random signal strength between -30 (excellent) and -90 (poor)
+            document.getElementById('signal').textContent = 
+              Math.floor(Math.random() * (-30 - (-90)) + (-90));
+            
+            // Random channel between 1-11 (common 2.4GHz channels)
+            document.getElementById('channel').textContent = 
+              Math.floor(Math.random() * 11) + 1;
+            
+            // Random number of clients between 1-20
+            document.getElementById('clients').textContent = 
+              Math.floor(Math.random() * 20) + 1;
+            
+            // Random bandwidth between 1-100 Mbps
+            document.getElementById('bandwidth').textContent = 
+              (Math.random() * 100).toFixed(1);
+            
+            // Random packet loss between 0-1%
+            document.getElementById('packetLoss').textContent = 
+              (Math.random() * 1).toFixed(3);
+            
+            // Last scan between 0-5 minutes ago
+            document.getElementById('lastScan').textContent = 
+              Math.floor(Math.random() * 5);
+          }
+          
+          // Update metrics every 2 seconds
+          setInterval(updateMetrics, 2000);
+          // Initial update
+          updateMetrics();
+        </script>
+      </div>
+
+      <div>
+        <div class="contact-section">
+          <h2>[ LOG ]</h2>
+          <div class="security-feed" id="security-feed">
+            <!-- Feed entries will be added by JavaScript -->
+          </div>
+        </div>
+
+        <div class="contact-section">
+          <h2>[ RESPONSE TIME ]</h2>
+          <p>Expected response times:</p>
+          <ul>
+            <li>Critical Security Issues: < 24 hours</li>
+            <li>General Inquiries: 24-48 hours</li>
+            <li>Business Proposals: 48-72 hours</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulated security feed
+    const feedEntries = [
+      // Network Reconnaissance
+      "TCP SYN scan detected from 45.33.12.x",
+      "Nmap aggressive scan detected from 209.127.x.x",
+      "DNS zone transfer attempt from 178.62.x.x",
+      "SMB version enumeration from 134.209.x.x",
+      "ICMP sweep detected from 167.248.133.x",
+      "SSH banner grabbing attempt from 194.26.135.x",
+      
+      // Authentication Events
+      "Failed SSH brute force from 89.248.x.x (China)",
+      "Multiple failed LDAP binds from internal IP 10.0.2.x",
+      "Successful SSH key-based auth from whitelisted IP",
+      "Kerberos golden ticket attempt detected",
+      "OAuth2 token abuse from 103.145.x.x",
+      "RADIUS auth failure from guest network",
+      
+      // Web Application
+      "SQLi attempt blocked: /api/users (IP: 45.155.205.x)",
+      "XSS payload in User-Agent: &lt;script&gt;alert(1)&lt;/script&gt;",
+      "Path traversal: /../../../etc/passwd from 51.89.x.x",
+      "CSRF attempt on admin panel from 185.156.73.x",
+      "Malicious file upload blocked: shell.php.jpg",
+      "API rate limit exceeded: 167.94.138.x",
+      
+      // System Security
+      "ModSecurity rule 942100: SQL Injection Attack",
+      "Reverse shell connection blocked: 194.165.16.x:4444",
+      "SELinux: httpd tried to access /etc/shadow",
+      "AppArmor blocked PHP file write in /var/www/",
+      "File modification detected: /etc/crontab",
+      "Suspicious SUID binary detected: /tmp/sx",
+      
+      // Infrastructure
+      "Lets Encrypt certificate renewal successful",
+      "Container breakout attempt: CAP_SYS_ADMIN abuse",
+      "K8s: Privileged container launch blocked",
+      "AWS: Unauthorized S3 bucket enumeration",
+      "HAProxy failover: Primary node unreachable",
+      "BGP: Invalid route announcement from AS12345",
+      
+      // Compliance and Monitoring
+      "MD5 mismatch: /usr/bin/sudo (possible tampering)",
+      "Failed PCI DSS requirement 10.2.2",
+      "Privilege escalation via sudoers modification",
+      "DLP: Credit card data in outbound email",
+      "Offsite backup verification: successful",
+      "Critical patch CVE-2024-1234 deployed",
+      
+      // Malware and Threats
+      "YARA match: Cobalt Strike beacon detected",
+      "C2 traffic blocked: 185.62.x.x:443",
+      "DNS exfil attempt to *.c2domain.com",
+      "XMRig miner process terminated: PID 13458",
+      "Suspicious base64 PowerShell execution",
+      "Ransomware IOC detected: .lockbit extension"
+    ];
+
+    function addFeedEntry() {
+      const feed = document.getElementById('security-feed');
+      const entry = feedEntries[Math.floor(Math.random() * feedEntries.length)];
+      const div = document.createElement('div');
+      div.className = 'feed-entry';
+      div.textContent = entry;
+      feed.insertBefore(div, feed.firstChild);
+      if (feed.children.length > 20) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    // Add initial entries
+    for (let i = 0; i < 8; i++) {
+      addFeedEntry();
+    }
+
+    // Add new entries periodically
+    setInterval(addFeedEntry, 3000);
+  </script>
+</body>
+</html>
