@@ -240,16 +240,21 @@ app.get('/blogs/:id/edit', function (req, res) {
       return res.status(404).send('Blog post not found');
     }
 
-    // Extract content from HTML
-    const titleMatch = data.match(/<h2 class="blog-post-title">(.*?)<\/h2>/);
-    const contentMatch = data.match(/<div class="blog-post-content">([\s\S]*?)<\/div>/);
-    const tagsMatch = data.match(/<span class="tag">(.*?)<\/span>/g);
+    // Improved content extraction with better regex patterns
+    const titleMatch = data.match(/<h2 class="blog-post-title">([\s\S]*?)<\/h2>/);
+    const metaMatch = data.match(/<div class="blog-post-meta">([\s\S]*?)<\/div>/);
+    const contentMatch = data.match(/<div class="blog-post-content">([\s\S]*?)<\/div>\s*<div class="blog-post-tags">/);
+    const tagsMatch = data.match(/<span class="tag">([\s\S]*?)<\/span>/g);
+    const categoryMatch = metaMatch && metaMatch[1].match(/Category: (.*?)(?:\||$)/);
     
-    const title = titleMatch ? titleMatch[1] : '';
+    const title = titleMatch ? titleMatch[1].trim() : '';
     const content = contentMatch ? contentMatch[1].trim() : '';
-    const tags = tagsMatch ? tagsMatch.map(tag => tag.match(/<span class="tag">(.*?)<\/span>/)[1]).join(', ') : '';
+    const category = categoryMatch ? categoryMatch[1].trim() : '';
+    const tags = tagsMatch 
+      ? tagsMatch.map(tag => tag.match(/<span class="tag">(.*?)<\/span>/)[1]).join(', ')
+      : '';
 
-    // Send edit form HTML
+    // Send edit form HTML with preserved content
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -260,7 +265,7 @@ app.get('/blogs/:id/edit', function (req, res) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
-        ${fs.readFileSync('blogs/1.html', 'utf8').match(/<style>[\s\S]*?<\/style>/)[0]}
+        ${data.match(/<style>[\s\S]*?<\/style>/)[0]}
         <style>
           .edit-form {
             max-width: 900px;
@@ -277,7 +282,11 @@ app.get('/blogs/:id/edit', function (req, res) {
             padding: 0.5rem;
             font-family: 'Share Tech Mono', monospace;
           }
-          .form-group textarea { min-height: 300px; }
+          .form-group textarea { 
+            min-height: 300px; 
+            resize: vertical;
+            white-space: pre-wrap;
+          }
           .button-group { display: flex; gap: 1rem; }
         </style>
       </head>
@@ -299,6 +308,10 @@ app.get('/blogs/:id/edit', function (req, res) {
               <input type="text" id="title" name="title" value="${title}" required>
             </div>
             <div class="form-group">
+              <label for="category">Category:</label>
+              <input type="text" id="category" name="category" value="${category}">
+            </div>
+            <div class="form-group">
               <label for="content">Content:</label>
               <textarea id="content" name="content" required>${content}</textarea>
             </div>
@@ -318,77 +331,41 @@ app.get('/blogs/:id/edit', function (req, res) {
   });
 });
 
-// Update a blog post
+// Update the update route as well to properly handle the content
 app.post('/blogs/:id/update', function (req, res) {
   const id = req.params.id;
   if (!req.body || !req.body.title || !req.body.content) {
     return res.status(400).send('Missing required fields');
   }
 
-  const tags = req.body.tags ? req.body.tags.split(',').map(tag => 
-    `<span class="tag">${tag.trim()}</span>`
-  ).join('\n') : '';
-
-  // Create updated HTML content
-  const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${req.body.title}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
-  ${fs.readFileSync('blogs/1.html', 'utf8').match(/<style>[\s\S]*?<\/style>/)[0]}
-</head>
-<body>
-  <nav>
-    <ul class="nav-links">
-      <li><a href="/apps">Apps</a></li>
-      <li><a href="/blog">Blog</a></li>
-      <li><a href="#shop">Shop</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="#login">Login/Register</a></li>
-    </ul>
-  </nav>
-
-  <div class="blog-container">
-    <article class="blog-post">
-      <header class="blog-post-header">
-        <h2 class="blog-post-title">${req.body.title}</h2>
-        <div class="blog-post-meta">Posted by WhosWiFi | ${new Date().toISOString().split('T')[0]} (Updated)</div>
-      </header>
-      <div class="blog-post-content">
-        ${req.body.content}
-      </div>
-      <div class="blog-post-tags">
-        ${tags}
-      </div>
-    </article>
-  </div>
-</body>
-</html>`;
-
-  // Save the updated blog post
-  fs.writeFile(path.join(BLOGS_DIR, `${id}.html`), htmlContent, function(err) {
+  const filePath = path.join(BLOGS_DIR, `${id}.html`);
+  
+  // Read the template file to get the structure
+  fs.readFile(TEMPLATE_PATH, 'utf8', (err, template) => {
     if (err) {
-      return res.status(500).send('Error updating blog post');
-    }
-    
-    // Update in-memory post
-    const postIndex = blogPosts.findIndex(post => post.id === parseInt(id));
-    if (postIndex !== -1) {
-      blogPosts[postIndex] = {
-        id: parseInt(id),
-        title: req.body.title,
-        meta: `Posted by WhosWiFi | ${new Date().toISOString().split('T')[0]} (Updated)`,
-        preview: req.body.content.substring(0, 150) + '...',
-        tags: tags
-      };
+      return res.status(500).send('Error updating post');
     }
 
-    res.redirect('/blog');
+    // Create the updated content
+    const updatedContent = template
+      .replace(/<title>.*?<\/title>/, `<title>${req.body.title}</title>`)
+      .replace(/<h2 class="blog-post-title">.*?<\/h2>/, `<h2 class="blog-post-title">${req.body.title}</h2>`)
+      .replace(/<div class="blog-post-meta">.*?<\/div>/, `<div class="blog-post-meta">Posted by WhosWiFi | ${new Date().toISOString().split('T')[0]} (Updated) | Category: ${req.body.category || 'Uncategorized'}</div>`)
+      .replace(/<div class="blog-post-content">[\s\S]*?<\/div>\s*<div class="blog-post-tags">/, `<div class="blog-post-content">${req.body.content}</div><div class="blog-post-tags">`)
+      .replace(/<div class="blog-post-tags">[\s\S]*?<\/div>/, `<div class="blog-post-tags">${
+        req.body.tags ? req.body.tags.split(',').map(tag => `<span class="tag">${tag.trim()}</span>`).join('\n') : ''
+      }</div>`);
+
+    // Save the updated file
+    fs.writeFile(filePath, updatedContent, function(err) {
+      if (err) {
+        return res.status(500).send('Error saving updated blog post');
+      }
+      
+      // Update in-memory posts
+      loadBlogPosts();
+      res.redirect('/blog');
+    });
   });
 });
 
