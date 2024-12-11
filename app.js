@@ -136,7 +136,8 @@ app.post('/create_post', function (req, res) {
 
   // Get the template style
   const templateStyle = fs.readFileSync(path.join(BLOGS_DIR, 'template.html'), 'utf8')
-    .match(/<style>[\s\S]*?<\/style>/)[0];
+    .match(/<style>[\s\S]*?<\/style>/)[0]
+    .replace(/text-shadow:.*?;/g, 'text-shadow: none;');
 
   // Create the blog post HTML
   const htmlContent = `<!DOCTYPE html>
@@ -149,6 +150,14 @@ app.post('/create_post', function (req, res) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
   ${templateStyle}
+  <style>
+    .blog-post-title, 
+    .blog-post-header h2,
+    h3 {
+      color: var(--neon-text-color);
+      text-shadow: none;
+    }
+  </style>
 </head>
 <body>
   <nav>
