@@ -107,11 +107,19 @@
     .product-image {
       margin-bottom: 1rem;
       overflow: hidden;
+      height: 200px;
+      width: 100%;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .product-image img {
       width: 100%;
-      height: auto;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
       transition: transform 0.3s ease;
     }
 
@@ -182,13 +190,13 @@
     <div class="products-grid">
       <div class="product-card">
         <div class="product-image">
-          <img src="/images/monopoly_dollar" alt="Monopoly Dollar">
+          <img src="/images/burp_training">
         </div>
         <div class="product-info">
-          <h3>Monopoly Dollar</h3>
-          <p class="product-description">This is a Monopoly Dollar. It is worth its weight in gold.</p>
+          <h3>Burp Suite Training (3 Days)</h3>
+          <p class="product-description">3 Day course learning how to use Burp Suite and apply this to pentest web applications.</p>
           <div class="product-meta">
-            <span class="product-price">$1</span>
+            <span class="product-price">$99.99</span>
             <button class="buy-btn">[ ADD TO CART ]</button>
           </div>
         </div>
@@ -196,11 +204,11 @@
 
       <div class="product-card">
         <div class="product-image">
-          <img src="https://placehold.co/300x200/0a0a0a/64ffda?text=CipherGuard+Elite" alt="CipherGuard Elite">
+          <img src="/images/source_code">
         </div>
         <div class="product-info">
-          <h3>CipherGuard Elite</h3>
-          <p class="product-description">Military-grade encryption software for secure communications.</p>
+          <h3>Source Code Review (3 Days)</h3>
+          <p class="product-description">Learn how to analyze source code from a security standpoint. Learn to identify and remediate vulnerable code.</p>
           <div class="product-meta">
             <span class="product-price">$79.99</span>
             <button class="buy-btn">[ ADD TO CART ]</button>
@@ -210,13 +218,13 @@
 
       <div class="product-card">
         <div class="product-image">
-          <img src="https://placehold.co/300x200/0a0a0a/64ffda?text=eBook" alt="Sample Product">
+          <img src="/images/reporting">
         </div>
         <div class="product-info">
-          <h3>Cyber Security Guide</h3>
-          <p class="product-description">Comprehensive guide to modern security practices and techniques.</p>
+          <h3>Learn Pentest Reporting (1 day)</h3>
+          <p class="product-description">Learn to write a securtiy report from a penetration testing engagement. Learn to log and format findings along with their severity rankings.</p>
           <div class="product-meta">
-            <span class="product-price">$29.99</span>
+            <span class="product-price">$49.99</span>
             <button class="buy-btn">[ ADD TO CART ]</button>
           </div>
         </div>
@@ -224,14 +232,13 @@
 
       <div class="product-card">
         <div class="product-image">
-          <img src="https://placehold.co/300x200/0a0a0a/64ffda?text=Course" alt="Sample Product">
+          <img src="/images/coming_soon">
         </div>
         <div class="product-info">
-          <h3>Ethical Hacking Course</h3>
-          <p class="product-description">Learn penetration testing from industry experts.</p>
+          <h3>WhosWiFi T-Shirt</h3>
+          <p class="product-description">Classified</p>
           <div class="product-meta">
-            <span class="product-price">$199.99</span>
-            <button class="buy-btn">[ ADD TO CART ]</button>
+            <span class="product-price">TBD</span>
           </div>
         </div>
       </div>

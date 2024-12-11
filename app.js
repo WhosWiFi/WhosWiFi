@@ -216,8 +216,32 @@ app.get('/shop', function (req, res) {
     });
 });
 
-app.get('/images/monopoly_dollar', function (req, res) {
-  fs.readFile('images/monopoly_dollar.png', function (err, data) {
+app.get('/images/burp_training', function (req, res) {
+  fs.readFile('images/burp_training.png', function (err, data) {
+      res.writeHead(200, {'Content-Type': 'image/png'});
+      res.write(data);
+      return res.end();
+    });
+});
+
+app.get('/images/source_code', function (req, res) {
+  fs.readFile('images/source_code.png', function (err, data) {
+      res.writeHead(200, {'Content-Type': 'image/png'});
+      res.write(data);
+      return res.end();
+    });
+});
+
+app.get('/images/reporting', function (req, res) {
+  fs.readFile('images/reporting.png', function (err, data) {
+      res.writeHead(200, {'Content-Type': 'image/png'});
+      res.write(data);
+      return res.end();
+    });
+});
+
+app.get('/images/coming_soon', function (req, res) {
+  fs.readFile('images/coming_soon.png', function (err, data) {
       res.writeHead(200, {'Content-Type': 'image/png'});
       res.write(data);
       return res.end();
