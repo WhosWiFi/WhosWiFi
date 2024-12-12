@@ -233,6 +233,35 @@
         height: -webkit-fill-available;
       }
     }
+
+    .ascii-art-card {
+      background: rgba(100, 255, 218, 0.05);
+      border: 1px solid var(--neon-text-color);
+      padding: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      width: calc(100% - 4rem);
+    }
+
+    .ascii-animation {
+      font-family: monospace;
+      white-space: pre;
+      margin: 0;
+      color: var(--neon-text-color);
+      text-shadow: 0 0 5px var(--neon-text-color);
+      line-height: 1.2;
+      font-size: 14px;
+    }
+
+    @keyframes neonPulse {
+      0% { opacity: 0.7; text-shadow: 0 0 5px var(--neon-text-color); }
+      50% { opacity: 1; text-shadow: 0 0 15px var(--neon-text-color); }
+      100% { opacity: 0.7; text-shadow: 0 0 5px var(--neon-text-color); }
+    }
+
+    #wifi {
+      animation: neonPulse 2s infinite;
+    }
   </style>
 </head>
 <body>
@@ -265,20 +294,11 @@
       </div>
       <button class="refresh-btn" onclick="fetchIPInfo()">[ REFRESH ]</button>
     </div>
+  </div>
 
-    <div class="details-grid">
-      <div class="detail-card">
-        <div class="detail-title">Protocol</div>
-        <div class="detail-value" id="protocol">Loading...</div>
-      </div>
-      <div class="detail-card">
-        <div class="detail-title">Pseudo-Location</div>
-        <div class="detail-value" id="location">Loading...</div>
-      </div>
-      <div class="detail-card">
-        <div class="detail-title">Pseudo-Coordinates</div>
-        <div class="detail-value" id="coordinates">Loading...</div>
-      </div>
+  <div class="details-grid">
+    <div class="ascii-art-card">
+      <pre id="wifi" class="ascii-animation"></pre>
     </div>
   </div>
 
@@ -287,16 +307,8 @@
       try {
         const response = await fetch('/api/ip');
         const data = await response.json();
-        
-        // Update IP addresses
         document.getElementById('ipv4-address').textContent = data.ipv4;
         document.getElementById('ipv6-address').textContent = data.ipv6;
-        
-        // Update network details
-        document.getElementById('protocol').textContent = `${data.protocol}`;
-        document.getElementById('location').textContent = data.location;
-        document.getElementById('coordinates').textContent = 
-          `${data.latitude}°, ${data.longitude}°`;
       } catch (error) {
         console.error('Error fetching IP info:', error);
         document.getElementById('ipv4-address').textContent = 'Error loading IP';
@@ -304,8 +316,116 @@
       }
     }
 
-    // Fetch IP info when page loads
-    fetchIPInfo();
+    const frames = [
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║                                          ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │ │           │ │           │ │     ║
+      ║     │ │           │ │           │ │     ║
+      ║     │ │           │ │           │ │     ║
+      ║     │█│           │ │           │ │     ║
+      ║     └▼┘           └─┘           └─┘     ║
+      ║    [▀▀▀]         [───]         [───]    ║
+      ║   Scanning...    Waiting...     Idle     ║
+      ╚══════════════════════════════════════════╝`,
+
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║                                          ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │ │           │ │           │ │     ║
+      ║     │ │           │ │           │ │     ║
+      ║     │█│           │ │           │ │     ║
+      ║     │█│           │ │           │ │     ║
+      ║     └▼┘           └─┘           └─┘     ║
+      ║    [███]         [───]         [───]    ║
+      ║   Secured        Waiting...     Idle     ║
+      ╚══════════════════════════════════════════╝`,
+
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║                                          ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │ │           │ │           │ │     ║
+      ║     │█│           │ │           │ │     ║
+      ║     │█│           │ │           │ │     ║
+      ║     │█│           │█│           │ │     ║
+      ║     └▼┘           └▼┘           └─┘     ║
+      ║    [███]         [▀▀▀]         [───]    ║
+      ║   Secured        Scanning...    Idle     ║
+      ╚══════════════════════════════════════════╝`,
+
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║                                          ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │█│           │ │           │ │     ║
+      ║     │█│           │█│           │ │     ║
+      ║     │█│           │█│           │ │     ║
+      ║     │█│           │█│           │ │     ║
+      ║     └▼┘           └▼┘           └─┘     ║
+      ║    [███]         [███]         [───]    ║
+      ║   Secured        Secured        Idle     ║
+      ╚══════════════════════════════════════════╝`,
+
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║                                          ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │█│           │█│           │ │     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     └▼┘           └▼┘           └▼┘     ║
+      ║    [███]         [███]         [▀▀▀]    ║
+      ║   Secured        Secured       Scanning  ║
+      ╚══════════════════════════════════════════╝`,
+
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║                                          ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     └▼┘           └▼┘           └▼┘     ║
+      ║    [███]         [███]         [███]    ║
+      ║   Secured        Secured       Secured   ║
+      ╚══════════════════════════════════════════╝`,
+
+      `
+      ╔══════════════ NETWORK SCAN ══════════════╗
+      ║              ▀▄▄▄▄▄▄▄▀                  ║
+      ║    STAGE 1        STAGE 2       STAGE 3  ║
+      ║     ┌─┐           ┌─┐           ┌─┐     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     │█│           │█│           │█│     ║
+      ║     └▼┘           └▼┘           └▼┘     ║
+      ║    [███]         [███]         [███]    ║
+      ║        * * * NETWORK SECURE * * *       ║
+      ╚══════════════════════════════════════════╝`
+    ];
+
+    let currentFrame = 0;
+    
+    function animateWifi() {
+      const wifi = document.getElementById('wifi');
+      wifi.textContent = frames[currentFrame];
+      currentFrame = (currentFrame + 1) % frames.length;
+    }
+
+    // Start animation
+    setInterval(animateWifi, 800);
   </script>
 </body>
 </html> 

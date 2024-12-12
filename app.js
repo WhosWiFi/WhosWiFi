@@ -442,33 +442,26 @@ app.get('/ip', function (req, res) {
 });
 
 app.get('/api/ip', function (req, res) {
+  // Get IPv4 address
   const ipv4 = req.headers['x-forwarded-for']?.split(',')[0] || 
                req.socket.remoteAddress?.replace(/^::ffff:/, '');
-  const ipv6 = req.socket.remoteAddress?.includes(':') ? 
-               req.socket.remoteAddress : 'Not Available';
-
-  // Convert IP to pseudo-coordinates
-  const ipParts = ipv4.split('.');
-  const lat = ((parseInt(ipParts[2]) % 180) - 90).toFixed(4);
-  const lon = ((parseInt(ipParts[3]) % 360) - 180).toFixed(4);
-
-  // Determine rough location based on coordinates
-  let location = 'Unknown Territory';
-  if (lat > 0) {
-    if (lon > 0) location = 'Somewhere in Asia';
-    else location = 'Somewhere in North America';
-  } else {
-    if (lon > 0) location = 'Somewhere in Oceania';
-    else location = 'Somewhere in South America';
+  
+  // Get IPv6 address (if available)
+  let ipv6 = 'Not Available';
+  if (req.socket.remoteAddress && req.socket.remoteAddress.includes(':')) {
+    ipv6 = req.socket.remoteAddress.replace(/^::ffff:/, '');
+    if (ipv6.includes(':')) {
+      // It's a real IPv6 address
+      ipv6 = ipv6;
+    } else {
+      // It's an IPv4 mapped as IPv6
+      ipv6 = 'Not Available';
+    }
   }
                
   res.json({
     ipv4: ipv4,
-    ipv6: ipv6,
-    protocol: req.protocol.toUpperCase(),
-    latitude: lat,
-    longitude: lon,
-    location: location
+    ipv6: ipv6
   });
 });
 
