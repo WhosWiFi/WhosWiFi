@@ -157,6 +157,63 @@
       overflow-x: auto;
       margin-top: 1rem;
     }
+
+    @media (max-width: 768px) {
+      /* Fix navigation wrapping */
+      .nav-links {
+        flex-wrap: wrap;
+      }
+
+      .nav-links li {
+        flex: 1 1 auto;
+        min-width: 33.33%; /* Show 3 items per row */
+      }
+
+      /* Adjust terminal container */
+      .terminal-container {
+        height: calc(100vh - 120px); /* Account for wrapped nav */
+        padding: 1rem;
+      }
+
+      /* Adjust terminal text container */
+      .terminal-text {
+        width: 95%;
+        height: 60vh;
+        padding: 1rem;
+        transform: none; /* Remove perspective on mobile */
+      }
+
+      /* Adjust title */
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Adjust boot sequence text */
+      .boot-sequence {
+        font-size: 0.9rem;
+      }
+
+      /* Fix input area */
+      .prompt-line {
+        font-size: 0.9rem;
+      }
+
+      .prompt-line::before {
+        margin-right: 0.5rem;
+      }
+
+      #terminal-input {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Fix iOS height issues */
+    @supports (-webkit-touch-callout: none) {
+      .terminal-container {
+        height: -webkit-fill-available;
+      }
+    }
   </style>
 </head>
 <body>
