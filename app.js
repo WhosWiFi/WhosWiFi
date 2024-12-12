@@ -428,6 +428,50 @@ app.post('/blogs/:id/delete', function (req, res) {
   });
 });
 
+// Add new route for IP lookup
+app.get('/ip', function (req, res) {
+  fs.readFile('ip.html', function (err, data) {
+    if (err) {
+      res.writeHead(404, {'Content-Type': 'text/html'});
+      return res.end('IP lookup not found');
+    }
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(data);
+    return res.end();
+  });
+});
+
+app.get('/api/ip', function (req, res) {
+  const ipv4 = req.headers['x-forwarded-for']?.split(',')[0] || 
+               req.socket.remoteAddress?.replace(/^::ffff:/, '');
+  const ipv6 = req.socket.remoteAddress?.includes(':') ? 
+               req.socket.remoteAddress : 'Not Available';
+
+  // Convert IP to pseudo-coordinates
+  const ipParts = ipv4.split('.');
+  const lat = ((parseInt(ipParts[2]) % 180) - 90).toFixed(4);
+  const lon = ((parseInt(ipParts[3]) % 360) - 180).toFixed(4);
+
+  // Determine rough location based on coordinates
+  let location = 'Unknown Territory';
+  if (lat > 0) {
+    if (lon > 0) location = 'Somewhere in Asia';
+    else location = 'Somewhere in North America';
+  } else {
+    if (lon > 0) location = 'Somewhere in Oceania';
+    else location = 'Somewhere in South America';
+  }
+               
+  res.json({
+    ipv4: ipv4,
+    ipv6: ipv6,
+    protocol: req.protocol.toUpperCase(),
+    latitude: lat,
+    longitude: lon,
+    location: location
+  });
+});
+
 app.listen(5123, function () {
   console.log('Example app listening on port 5123!');
 });
