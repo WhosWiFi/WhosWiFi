@@ -442,26 +442,10 @@ app.get('/ip', function (req, res) {
 });
 
 app.get('/api/ip', function (req, res) {
-  // Get IPv4 address
-  const ipv4 = req.headers['x-forwarded-for']?.split(',')[0] || 
-               req.socket.remoteAddress?.replace(/^::ffff:/, '');
-  
-  // Get IPv6 address (if available)
-  let ipv6 = 'Not Available';
-  if (req.socket.remoteAddress && req.socket.remoteAddress.includes(':')) {
-    ipv6 = req.socket.remoteAddress.replace(/^::ffff:/, '');
-    if (ipv6.includes(':')) {
-      // It's a real IPv6 address
-      ipv6 = ipv6;
-    } else {
-      // It's an IPv4 mapped as IPv6
-      ipv6 = 'Not Available';
-    }
-  }
-               
+  const ipv4 = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress?.replace(/^::ffff:/, '');
+
   res.json({
     ipv4: ipv4,
-    ipv6: ipv6
   });
 });
 

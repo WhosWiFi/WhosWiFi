@@ -286,13 +286,7 @@
           Loading...
         </div>
       </div>
-      <div class="ip-section">
-        <h2>IPv6</h2>
-        <div class="ip-address" id="ipv6-address">
-          Loading...
-        </div>
-      </div>
-      <button class="refresh-btn" onclick="fetchIPInfo()">[ REFRESH ]</button>
+      <button class="refresh-btn" onclick="fetchIPInfo()">[ Find My IP ]</button>
     </div>
   </div>
 
@@ -308,11 +302,9 @@
         const response = await fetch('/api/ip');
         const data = await response.json();
         document.getElementById('ipv4-address').textContent = data.ipv4;
-        document.getElementById('ipv6-address').textContent = data.ipv6;
       } catch (error) {
         console.error('Error fetching IP info:', error);
         document.getElementById('ipv4-address').textContent = 'Error loading IP';
-        document.getElementById('ipv6-address').textContent = 'Error loading IP';
       }
     }
 
@@ -342,7 +334,7 @@
       ║     │█│           │ │           │ │     ║
       ║     └▼┘           └─┘           └─┘     ║
       ║    [███]         [───]         [───]    ║
-      ║   Secured        Waiting...     Idle     ║
+      ║   Scanning...    Waiting...     Idle     ║
       ╚══════════════════════════════════════════╝`,
 
       `
@@ -356,7 +348,7 @@
       ║     │█│           │█│           │ │     ║
       ║     └▼┘           └▼┘           └─┘     ║
       ║    [███]         [▀▀▀]         [───]    ║
-      ║   Secured        Scanning...    Idle     ║
+      ║   Scanning...    Scanning...    Idle     ║
       ╚══════════════════════════════════════════╝`,
 
       `
@@ -370,7 +362,7 @@
       ║     │█│           │█│           │ │     ║
       ║     └▼┘           └▼┘           └─┘     ║
       ║    [███]         [███]         [───]    ║
-      ║   Secured        Secured        Idle     ║
+      ║   Secured        Scanning...   Idle     ║
       ╚══════════════════════════════════════════╝`,
 
       `
@@ -398,7 +390,7 @@
       ║     │█│           │█│           │█│     ║
       ║     └▼┘           └▼┘           └▼┘     ║
       ║    [███]         [███]         [███]    ║
-      ║   Secured        Secured       Secured   ║
+      ║   Secured        Secured       Secured  ║
       ╚══════════════════════════════════════════╝`,
 
       `
