@@ -193,7 +193,8 @@
       font-size: 1rem;
       outline: none;
       width: 100%;
-      text-shadow: 0 0 2px var(--neon-text-color);
+      padding: 0;
+      margin: 0;
     }
 
     @keyframes textShadow {
@@ -306,15 +307,10 @@ Type a command (apps, blog, shop, about, contact, login)
         <div class="input-wrapper">
           <span class="typed-text"></span>
           <span class="cursor"></span>
-          <input type="search" 
+          <input type="text" 
                  id="terminal-input" 
-                 role="combobox"
-                 aria-autocomplete="list"
                  autocomplete="off" 
-                 autocorrect="off" 
-                 autocapitalize="off" 
-                 spellcheck="false"
-                 data-form-type="other">
+                 spellcheck="false">
         </div>
       </div>
     </div>
@@ -324,31 +320,23 @@ Type a command (apps, blog, shop, about, contact, login)
     const typedText = document.querySelector('.typed-text');
     const cursor = document.querySelector('.cursor');
 
-    // Focus input as soon as page loads
+    // Focus input when page loads
     window.addEventListener('load', () => {
       input.focus();
     });
 
-    // Refocus input if user clicks anywhere on the page
+    // Keep focus on input
     document.addEventListener('click', () => {
       input.focus();
     });
 
-    // Prevent losing focus
-    input.addEventListener('blur', () => {
-      setTimeout(() => input.focus(), 10);
-    });
-
-    // Handle input with requestAnimationFrame for better performance
-    let rafId;
+    // Handle input updates
     input.addEventListener('input', () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        typedText.textContent = input.value;
-        cursor.style.left = `${typedText.offsetWidth}px`;
-      });
+      typedText.textContent = input.value;
+      cursor.style.left = `${typedText.offsetWidth}px`;
     });
 
+    // Handle commands
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         const command = input.value.toLowerCase().trim();
