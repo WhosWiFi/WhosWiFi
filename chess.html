@@ -177,6 +177,53 @@
         .modal-buttons button.quit:hover {
             background-color: #da190b;
         }
+
+        .move-history {
+            background: #2c2c2c;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            width: 300px;
+        }
+
+        .move-history h3 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+
+        #moveList {
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .move-entry {
+            padding: 5px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .move-entry.white {
+            background: #363636;
+        }
+
+        .move-entry.black {
+            background: #2c2c2c;
+        }
+
+        .move-entry.capture {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .move-entry.status {
+            color: #ffd700;
+            font-style: italic;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -208,7 +255,10 @@
         </div>
         <div class="game-info">
             <h2>Current Turn: <span id="currentPlayer">White</span></h2>
-            <div id="moveHistory"></div>
+            <div class="move-history">
+                <h3>Move History</h3>
+                <div id="moveList"></div>
+            </div>
         </div>
     </div>
 
@@ -329,6 +379,9 @@
 
                 // Update game status
                 this.updateGameStatus();
+
+                // Add move to history
+                addMoveToHistory(from, to, piece);
 
                 return true;
             }
@@ -854,6 +907,38 @@
             window.close();
             // If window.close() doesn't work (most modern browsers prevent it)
             location.href = 'about:blank';
+        }
+
+        function addMoveToHistory(from, to, piece) {
+            const moveList = document.getElementById('moveList');
+            
+            // Create move entry
+            const moveEntry = document.createElement('div');
+            moveEntry.className = `move-entry ${piece.color}`;
+            
+            // Basic move description
+            let description = `${piece.color === 'white' ? 'White' : 'Black'} ${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} to ${to}`;
+            moveEntry.textContent = description;
+            moveList.appendChild(moveEntry);
+
+            // If there's a capture, add it as a separate entry
+            const captured = this.board[to];
+            if (captured) {
+                const captureEntry = document.createElement('div');
+                captureEntry.className = `move-entry capture ${piece.color}`;
+                captureEntry.textContent = `${piece.color === 'white' ? 'White' : 'Black'} ${to} takes ${captured.type.charAt(0).toUpperCase() + captured.type.slice(1)} ${to}`;
+                moveList.appendChild(captureEntry);
+            }
+            
+            // Add check/checkmate status as separate entry if applicable
+            if (this.gameStatus === 'check' || this.gameStatus === 'checkmate') {
+                const statusEntry = document.createElement('div');
+                statusEntry.className = `move-entry status ${piece.color}`;
+                statusEntry.textContent = this.gameStatus === 'check' ? 'Check!' : 'Checkmate!';
+                moveList.appendChild(statusEntry);
+            }
+            
+            moveList.scrollTop = moveList.scrollHeight;
         }
     </script>
 </body>
