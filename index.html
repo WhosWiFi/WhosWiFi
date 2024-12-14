@@ -271,6 +271,27 @@
         height: -webkit-fill-available;
       }
     }
+
+    #terminal-output {
+      display: inline-block;
+      color: var(--neon-text-color);
+      text-shadow: 0 0 2px var(--neon-text-color);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      white-space: pre;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: var(--neon-text-color);
+      animation: blink 1s infinite;
+      position: absolute;
+      top: 2px;
+      margin-left: 0;
+      box-shadow: 0 0 5px var(--neon-text-color);
+    }
   </style>
 </head>
 <body>
@@ -305,41 +326,41 @@ Type a command (apps, blog, shop, about, contact, login)
       </div>
       <div class="prompt-line">
         <div class="input-wrapper">
-          <span class="typed-text"></span>
-          <span class="cursor"></span>
-          <input type="text" 
-                 id="terminal-input" 
-                 autocomplete="off" 
-                 spellcheck="false">
+          <div id="terminal-output"></div>
+          <span class="cursor" id="cursor"></span>
         </div>
       </div>
     </div>
   </div>
   <script>
-    const input = document.getElementById('terminal-input');
-    const typedText = document.querySelector('.typed-text');
-    const cursor = document.querySelector('.cursor');
+    let currentInput = '';
+    const output = document.getElementById('terminal-output');
+    const cursor = document.getElementById('cursor');
 
-    // Focus input when page loads
-    window.addEventListener('load', () => {
-      input.focus();
-    });
+    function updateCursorPosition() {
+      // Create a temporary span to measure text width
+      const temp = document.createElement('span');
+      temp.style.font = window.getComputedStyle(output).font;
+      temp.style.visibility = 'hidden';
+      temp.style.position = 'absolute';
+      temp.textContent = currentInput;
+      document.body.appendChild(temp);
+      
+      // Set cursor position based on text width
+      const width = temp.offsetWidth;
+      cursor.style.left = width + 'px';
+      
+      document.body.removeChild(temp);
+    }
 
-    // Keep focus on input
-    document.addEventListener('click', () => {
-      input.focus();
-    });
+    document.addEventListener('keydown', (e) => {
+      e.preventDefault();
 
-    // Handle input updates
-    input.addEventListener('input', () => {
-      typedText.textContent = input.value;
-      cursor.style.left = `${typedText.offsetWidth}px`;
-    });
-
-    // Handle commands
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        const command = input.value.toLowerCase().trim();
+      if (e.key === 'Backspace') {
+        currentInput = currentInput.slice(0, -1);
+      }
+      else if (e.key === 'Enter') {
+        const command = currentInput.toLowerCase().trim();
         switch(command) {
           case 'apps':
             window.location.href = '/apps';
@@ -360,10 +381,18 @@ Type a command (apps, blog, shop, about, contact, login)
             window.location.href = '/login';
             break;
         }
-        input.value = '';
-        typedText.textContent = '';
-        cursor.style.left = '0';
+        currentInput = '';
       }
+      else if (e.key.length === 1) {
+        currentInput += e.key;
+      }
+
+      output.textContent = currentInput;
+      updateCursorPosition();
+    });
+
+    document.addEventListener('click', () => {
+      document.focus();
     });
   </script>
 </body>
