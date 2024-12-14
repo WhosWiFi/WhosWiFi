@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Board</title>
+    <style>
+        :root {
+            --light-square: #eee;
+            --dark-square: #999;
+            --selected: rgba(100, 255, 218, 0.4);
+            --valid-move: rgba(0, 255, 0, 0.3);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+        }
+
+        .chess-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .board {
+            width: 640px;
+            height: 640px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            border: 2px solid #333;
+            position: relative;
+        }
+
+        .square {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .square.light { background-color: var(--light-square); }
+        .square.dark { background-color: var(--dark-square); }
+        .square.selected { background-color: var(--selected); }
+        .square.valid-move::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: var(--valid-move);
+        }
+
+        .piece {
+            font-size: 50px;
+            user-select: none;
+        }
+
+        .piece.white { color: white; text-shadow: 1px 1px 1px #000; }
+        .piece.black { color: black; text-shadow: 1px 1px 1px #666; }
+
+        /* File labels (A-H) */
+        .file-label {
+            position: absolute;
+            bottom: -25px;
+            width: 80px;
+            text-align: center;
+            color: #fff;
+        }
+
+        /* Rank labels (1-8) */
+        .rank-label {
+            position: absolute;
+            left: -25px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="chess-container">
+        <div class="board" id="board"></div>
+    </div>
+
+    <script>
+        class ChessBoard {
+            constructor() {
+                this.board = {};
+                this.selectedSquare = null;
+                this.currentPlayer = 'white';
+                this.initializeBoard();
+            }
+
+            initializeBoard() {
+                // Initialize empty board
+                for (let rank = 1; rank <= 8; rank++) {
+                    for (let file of 'ABCDEFGH') {
+                        this.board[file + rank] = null;
+                    }
+                }
+
+                // Set up pieces
+                this.setupPieces();
+            }
+
+            setupPieces() {
+                // Set up pawns
+                for (let file of 'ABCDEFGH') {
+                    this.board[file + '2'] = { type: 'pawn', color: 'white' };
+                    this.board[file + '7'] = { type: 'pawn', color: 'black' };
+                }
+
+                // Set up other pieces
+                const pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+                pieces.forEach((piece, index) => {
+                    const file = String.fromCharCode(65 + index); // Convert 0-7 to A-H
+                    this.board[file + '1'] = { type: piece, color: 'white' };
+                    this.board[file + '8'] = { type: piece, color: 'black' };
+                });
+            }
+
+            getValidMoves(square) {
+                const piece = this.board[square];
+                if (!piece) return [];
+
+                const [file, rank] = square.split('');
+                const fileIndex = file.charCodeAt(0) - 65; // Convert A-H to 0-7
+                const rankIndex = parseInt(rank) - 1;
+
+                switch (piece.type) {
+                    case 'pawn':
+                        return this.getPawnMoves(fileIndex, rankIndex, piece.color);
+                    case 'rook':
+                        return this.getRookMoves(fileIndex, rankIndex, piece.color);
+                    case 'knight':
+                        return this.getKnightMoves(fileIndex, rankIndex, piece.color);
+                    case 'bishop':
+                        return this.getBishopMoves(fileIndex, rankIndex, piece.color);
+                    case 'queen':
+                        return [...this.getRookMoves(fileIndex, rankIndex, piece.color),
+                               ...this.getBishopMoves(fileIndex, rankIndex, piece.color)];
+                    case 'king':
+                        return this.getKingMoves(fileIndex, rankIndex, piece.color);
+                    default:
+                        return [];
+                }
+            }
+
+            // Convert file/rank indices to chess notation
+            toSquare(fileIndex, rankIndex) {
+                if (fileIndex < 0 || fileIndex > 7 || rankIndex < 0 || rankIndex > 7) return null;
+                const file = String.fromCharCode(65 + fileIndex);
+                const rank = rankIndex + 1;
+                return file + rank;
+            }
+
+            // Piece movement methods
+            getPawnMoves(fileIndex, rankIndex, color) {
+                const moves = [];
+                const direction = color === 'white' ? 1 : -1;
+                const startRank = color === 'white' ? 1 : 6;
+
+                // Forward move
+                let nextSquare = this.toSquare(fileIndex, rankIndex + direction);
+                if (nextSquare && !this.board[nextSquare]) {
+                    moves.push(nextSquare);
+                    // Double move from starting position
+                    if (rankIndex === startRank) {
+                        nextSquare = this.toSquare(fileIndex, rankIndex + 2 * direction);
+                        if (!this.board[nextSquare]) {
+                            moves.push(nextSquare);
+                        }
+                    }
+                }
+
+                // Captures
+                for (const dx of [-1, 1]) {
+                    nextSquare = this.toSquare(fileIndex + dx, rankIndex + direction);
+                    if (nextSquare && this.board[nextSquare]?.color !== color) {
+                        moves.push(nextSquare);
+                    }
+                }
+
+                return moves;
+            }
+
+            getRookMoves(fileIndex, rankIndex, color) {
+                const moves = [];
+                const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+
+                for (const [dx, dy] of directions) {
+                    let newFile = fileIndex + dx;
+                    let newRank = rankIndex + dy;
+
+                    while (true) {
+                        const square = this.toSquare(newFile, newRank);
+                        if (!square) break;
+
+                        const piece = this.board[square];
+                        if (!piece) {
+                            moves.push(square);
+                        } else {
+                            if (piece.color !== color) {
+                                moves.push(square);
+                            }
+                            break;
+                        }
+
+                        newFile += dx;
+                        newRank += dy;
+                    }
+                }
+
+                return moves;
+            }
+
+            getKnightMoves(fileIndex, rankIndex, color) {
+                const moves = [];
+                const offsets = [
+                    [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+                    [1, -2], [1, 2], [2, -1], [2, 1]
+                ];
+
+                for (const [dx, dy] of offsets) {
+                    const square = this.toSquare(fileIndex + dx, rankIndex + dy);
+                    if (square && (!this.board[square] || this.board[square].color !== color)) {
+                        moves.push(square);
+                    }
+                }
+
+                return moves;
+            }
+
+            getBishopMoves(fileIndex, rankIndex, color) {
+                const moves = [];
+                const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+
+                for (const [dx, dy] of directions) {
+                    let newFile = fileIndex + dx;
+                    let newRank = rankIndex + dy;
+
+                    while (true) {
+                        const square = this.toSquare(newFile, newRank);
+                        if (!square) break;
+
+                        const piece = this.board[square];
+                        if (!piece) {
+                            moves.push(square);
+                        } else {
+                            if (piece.color !== color) {
+                                moves.push(square);
+                            }
+                            break;
+                        }
+
+                        newFile += dx;
+                        newRank += dy;
+                    }
+                }
+
+                return moves;
+            }
+
+            getKingMoves(fileIndex, rankIndex, color) {
+                const moves = [];
+                const offsets = [
+                    [-1, -1], [-1, 0], [-1, 1],
+                    [0, -1], [0, 1],
+                    [1, -1], [1, 0], [1, 1]
+                ];
+
+                for (const [dx, dy] of offsets) {
+                    const square = this.toSquare(fileIndex + dx, rankIndex + dy);
+                    if (square && (!this.board[square] || this.board[square].color !== color)) {
+                        moves.push(square);
+                    }
+                }
+
+                return moves;
+            }
+        }
+
+        // UI Implementation
+        const chessBoard = new ChessBoard();
+        const boardElement = document.getElementById('board');
+
+        function getPieceSymbol(piece) {
+            const symbols = {
+                white: {
+                    king: '♔',
+                    queen: '♕',
+                    rook: '♖',
+                    bishop: '♗',
+                    knight: '♘',
+                    pawn: '♙'
+                },
+                black: {
+                    king: '♚',
+                    queen: '♛',
+                    rook: '♜',
+                    bishop: '♝',
+                    knight: '♞',
+                    pawn: '♟'
+                }
+            };
+            return symbols[piece.color][piece.type];
+        }
+
+        function createBoard() {
+            boardElement.innerHTML = '';
+
+            // Create squares and add file/rank labels
+            for (let rank = 8; rank >= 1; rank--) {
+                // Add rank label
+                const rankLabel = document.createElement('div');
+                rankLabel.className = 'rank-label';
+                rankLabel.style.top = `${(8 - rank) * 80}px`;
+                rankLabel.textContent = rank;
+                boardElement.appendChild(rankLabel);
+
+                for (let fileIndex = 0; fileIndex < 8; fileIndex++) {
+                    const file = String.fromCharCode(65 + fileIndex);
+                    const square = document.createElement('div');
+                    const notation = file + rank;
+
+                    square.className = `square ${(fileIndex + rank) % 2 ? 'dark' : 'light'}`;
+                    square.dataset.square = notation;
+
+                    const piece = chessBoard.board[notation];
+                    if (piece) {
+                        const pieceDiv = document.createElement('div');
+                        pieceDiv.className = `piece ${piece.color}`;
+                        pieceDiv.textContent = getPieceSymbol(piece);
+                        square.appendChild(pieceDiv);
+                    }
+
+                    square.addEventListener('click', handleSquareClick);
+                    boardElement.appendChild(square);
+
+                    // Add file label on the bottom rank
+                    if (rank === 1) {
+                        const fileLabel = document.createElement('div');
+                        fileLabel.className = 'file-label';
+                        fileLabel.style.left = `${fileIndex * 80}px`;
+                        fileLabel.textContent = file;
+                        boardElement.appendChild(fileLabel);
+                    }
+                }
+            }
+        }
+
+        function handleSquareClick(event) {
+            const square = event.currentTarget;
+            const notation = square.dataset.square;
+            const piece = chessBoard.board[notation];
+
+            // Clear previous selections
+            document.querySelectorAll('.square').forEach(sq => {
+                sq.classList.remove('selected', 'valid-move');
+            });
+
+            if (piece && piece.color === chessBoard.currentPlayer) {
+                // Select piece and show valid moves
+                square.classList.add('selected');
+                const validMoves = chessBoard.getValidMoves(notation);
+                validMoves.forEach(move => {
+                    document.querySelector(`[data-square="${move}"]`).classList.add('valid-move');
+                });
+                chessBoard.selectedSquare = notation;
+            } else if (chessBoard.selectedSquare) {
+                // Move piece if valid
+                const validMoves = chessBoard.getValidMoves(chessBoard.selectedSquare);
+                if (validMoves.includes(notation)) {
+                    // Make the move
+                    chessBoard.board[notation] = chessBoard.board[chessBoard.selectedSquare];
+                    chessBoard.board[chessBoard.selectedSquare] = null;
+                    chessBoard.selectedSquare = null;
+                    chessBoard.currentPlayer = chessBoard.currentPlayer === 'white' ? 'black' : 'white';
+                    createBoard();
+                }
+            }
+        }
+
+        // Initialize the board
+        createBoard();
+    </script>
+</body>
+</html>
