@@ -347,19 +347,18 @@
 
             makeMove(from, to) {
                 const piece = this.board[from];
-                if (!piece) return false;
+                if (!piece || piece.color !== this.currentPlayer) {
+                    return false;
+                }
 
-                // Validate move
+                // Get valid moves for the piece
                 const validMoves = this.getValidMovesForPiece(from);
-                if (!validMoves.includes(to)) return false;
+                if (!validMoves.includes(to)) {
+                    return false;
+                }
 
-                // Store move for en passant and move history
-                this.lastMove = {
-                    piece: piece,
-                    from: from,
-                    to: to,
-                    captured: this.board[to]
-                };
+                // Store captured piece before making the move
+                const capturedPiece = this.board[to];
 
                 // Update piece position
                 this.board[to] = piece;
@@ -380,8 +379,8 @@
                 // Update game status
                 this.updateGameStatus();
 
-                // Add move to history
-                addMoveToHistory(from, to, piece);
+                // Add move to history - now passing the captured piece
+                this.addMoveToHistory(from, to, piece, capturedPiece);
 
                 return true;
             }
@@ -803,6 +802,32 @@
                 }
                 return position;
             }
+
+            addMoveToHistory(from, to, piece, capturedPiece) {
+                const moveList = document.getElementById('moveList');
+                const moveEntry = document.createElement('div');
+                moveEntry.className = `move-entry ${piece.color}`;
+                
+                let description;
+                if (capturedPiece) {
+                    description = `${piece.color === 'white' ? 'White' : 'Black'} ${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} takes ${capturedPiece.type.charAt(0).toUpperCase() + capturedPiece.type.slice(1)} ${to}`;
+                    moveEntry.className += ' capture';
+                } else {
+                    description = `${piece.color === 'white' ? 'White' : 'Black'} ${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} to ${to}`;
+                }
+                
+                moveEntry.textContent = description;
+                moveList.appendChild(moveEntry);
+                
+                if (this.gameStatus === 'check' || this.gameStatus === 'checkmate') {
+                    const statusEntry = document.createElement('div');
+                    statusEntry.className = `move-entry status ${piece.color}`;
+                    statusEntry.textContent = this.gameStatus === 'check' ? 'Check!' : 'Checkmate!';
+                    moveList.appendChild(statusEntry);
+                }
+                
+                moveList.scrollTop = moveList.scrollHeight;
+            }
         }
     </script>
     <script>
@@ -907,38 +932,6 @@
             window.close();
             // If window.close() doesn't work (most modern browsers prevent it)
             location.href = 'about:blank';
-        }
-
-        function addMoveToHistory(from, to, piece) {
-            const moveList = document.getElementById('moveList');
-            
-            // Create move entry
-            const moveEntry = document.createElement('div');
-            moveEntry.className = `move-entry ${piece.color}`;
-            
-            // Basic move description
-            let description = `${piece.color === 'white' ? 'White' : 'Black'} ${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} to ${to}`;
-            moveEntry.textContent = description;
-            moveList.appendChild(moveEntry);
-
-            // If there's a capture, add it as a separate entry
-            const captured = this.board[to];
-            if (captured) {
-                const captureEntry = document.createElement('div');
-                captureEntry.className = `move-entry capture ${piece.color}`;
-                captureEntry.textContent = `${piece.color === 'white' ? 'White' : 'Black'} ${to} takes ${captured.type.charAt(0).toUpperCase() + captured.type.slice(1)} ${to}`;
-                moveList.appendChild(captureEntry);
-            }
-            
-            // Add check/checkmate status as separate entry if applicable
-            if (this.gameStatus === 'check' || this.gameStatus === 'checkmate') {
-                const statusEntry = document.createElement('div');
-                statusEntry.className = `move-entry status ${piece.color}`;
-                statusEntry.textContent = this.gameStatus === 'check' ? 'Check!' : 'Checkmate!';
-                moveList.appendChild(statusEntry);
-            }
-            
-            moveList.scrollTop = moveList.scrollHeight;
         }
     </script>
 </body>
