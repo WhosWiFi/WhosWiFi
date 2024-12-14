@@ -439,9 +439,9 @@
                         break;
                 }
 
-                // Filter out moves that would leave king in check
+                // Filter out moves that would leave or put king in check
                 if (!ignoreCastling) {
-                    moves = moves.filter(move => !this.wouldBeInCheck(square, move));
+                    moves = moves.filter(move => !this.wouldBeInCheck(square, move, piece.color));
                 }
 
                 return moves;
@@ -654,21 +654,19 @@
 
                 if (isInCheck && !hasValidMoves) {
                     this.gameStatus = 'checkmate';
+                    const winner = opponent === 'white' ? 'Black' : 'White';
+                    showGameOver(`Checkmate! ${winner} wins!`);
                     return;
                 }
 
                 if (!isInCheck && !hasValidMoves) {
                     this.gameStatus = 'stalemate';
+                    showGameOver('Stalemate! The game is a draw.');
                     return;
                 }
 
                 if (isInCheck) {
                     this.gameStatus = 'check';
-                    return;
-                }
-
-                if (this.isInsufficientMaterial() || this.isThreefoldRepetition() || this.isFiftyMoveRule()) {
-                    this.gameStatus = 'draw';
                     return;
                 }
 
@@ -694,21 +692,24 @@
                 return false;
             }
 
-            wouldBeInCheck(from, to) {
+            wouldBeInCheck(from, to, color) {
                 // Make temporary move
                 const piece = this.board[from];
                 const capturedPiece = this.board[to];
                 this.board[to] = piece;
                 this.board[from] = null;
 
-                // Check if king is in check
-                const isInCheck = this.isInCheck(piece.color);
+                // If it's a king move, update temporary king position
+                const tempKingPosition = (piece.type === 'king') ? to : this.kings[color];
 
-                // Undo move
+                // Check if king would be in check
+                const wouldBeInCheck = this.isSquareAttacked(tempKingPosition, color === 'white' ? 'black' : 'white');
+
+                // Undo temporary move
                 this.board[from] = piece;
                 this.board[to] = capturedPiece;
 
-                return isInCheck;
+                return wouldBeInCheck;
             }
 
             isInsufficientMaterial() {
