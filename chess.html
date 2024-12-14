@@ -403,40 +403,47 @@
                 const rank = parseInt(square[1]);
                 const fileIndex = file.charCodeAt(0) - 65;
 
-                // Forward moves
+                // Forward moves (only straight ahead, no captures)
                 const oneSquareAhead = file + (rank + direction);
                 if (this.isValidSquare(oneSquareAhead) && !this.board[oneSquareAhead]) {
                     moves.push(oneSquareAhead);
 
-                    // Initial two-square move
+                    // Initial two-square move (only if first square is empty)
                     if (!piece.hasMoved) {
                         const twoSquaresAhead = file + (rank + 2 * direction);
-                        if (!this.board[twoSquaresAhead]) {
+                        if (this.isValidSquare(twoSquaresAhead) && !this.board[twoSquaresAhead]) {
                             moves.push(twoSquaresAhead);
                         }
                     }
                 }
 
-                // Captures
-                const captureFiles = [String.fromCharCode(fileIndex + 64), String.fromCharCode(fileIndex + 66)];
+                // Diagonal captures (only if enemy piece is present)
+                const captureFiles = [
+                    String.fromCharCode(fileIndex + 64), // Left diagonal
+                    String.fromCharCode(fileIndex + 66)  // Right diagonal
+                ];
+
                 captureFiles.forEach(captureFile => {
                     if (captureFile >= 'A' && captureFile <= 'H') {
                         const captureSquare = captureFile + (rank + direction);
-                        if (this.board[captureSquare]?.color !== piece.color) {
+                        const targetPiece = this.board[captureSquare];
+                        
+                        // Only add diagonal move if there's an enemy piece to capture
+                        if (targetPiece && targetPiece.color !== piece.color) {
                             moves.push(captureSquare);
+                        }
+
+                        // En passant capture
+                        if (this.lastMove && 
+                            this.lastMove.piece.type === 'pawn' && 
+                            this.lastMove.piece.color !== piece.color &&
+                            Math.abs(parseInt(this.lastMove.from[1]) - parseInt(this.lastMove.to[1])) === 2 &&
+                            rank === (piece.color === 'white' ? 5 : 4) &&
+                            Math.abs(fileIndex - (this.lastMove.to[0].charCodeAt(0) - 65)) === 1) {
+                            moves.push(captureFile + (rank + direction));
                         }
                     }
                 });
-
-                // En passant
-                if (this.lastMove && this.lastMove.piece.type === 'pawn' && 
-                    Math.abs(parseInt(this.lastMove.from[1]) - parseInt(this.lastMove.to[1])) === 2) {
-                    const enPassantFile = this.lastMove.to[0];
-                    if (Math.abs(fileIndex - (enPassantFile.charCodeAt(0) - 65)) === 1 &&
-                        rank === (piece.color === 'white' ? 5 : 4)) {
-                        moves.push(enPassantFile + (rank + direction));
-                    }
-                }
 
                 return moves;
             }
