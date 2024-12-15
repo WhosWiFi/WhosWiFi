@@ -293,8 +293,11 @@
                             if (rankDiff === 1 && (toRank - fromRank) === direction) {
                                 return true;
                             }
-                            // First move - two squares forward
-                            if (!piece.hasMoved && rankDiff === 2 && 
+                            // First move - two squares forward (only from starting rank)
+                            if (!piece.hasMoved && 
+                                ((piece.color === 'white' && fromRank === 2) || 
+                                 (piece.color === 'black' && fromRank === 7)) && 
+                                rankDiff === 2 && 
                                 (toRank - fromRank) === 2 * direction) {
                                 const middleSquare = from[0] + (parseInt(from[1]) + direction);
                                 return !this.board[middleSquare];
