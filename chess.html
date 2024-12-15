@@ -353,8 +353,12 @@
             const board = document.getElementById('board');
             board.innerHTML = '';
 
-            for (let rank = 8; rank >= 1; rank--) {
-                for (let file of 'ABCDEFGH') {
+            // Determine rank order based on player color
+            const ranks = playerColor === 'white' ? [8,7,6,5,4,3,2,1] : [1,2,3,4,5,6,7,8];
+            const files = playerColor === 'white' ? 'ABCDEFGH' : 'HGFEDCBA';
+
+            for (let rank of ranks) {
+                for (let file of files) {
                     const square = document.createElement('div');
                     const notation = file + rank;
                     square.className = `square ${(file.charCodeAt(0) + rank) % 2 === 0 ? 'light' : 'dark'}`;
