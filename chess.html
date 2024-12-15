@@ -70,47 +70,153 @@
             constructor() {
                 this.board = {};
                 this.currentPlayer = 'white';
-                this.gameStatus = 'active';
                 this.initializeBoard();
             }
 
             initializeBoard() {
                 // Initialize white pieces
-                this.board['A1'] = { type: 'rook', color: 'white' };
+                this.board['A1'] = { type: 'rook', color: 'white', hasMoved: false };
                 this.board['B1'] = { type: 'knight', color: 'white' };
                 this.board['C1'] = { type: 'bishop', color: 'white' };
                 this.board['D1'] = { type: 'queen', color: 'white' };
-                this.board['E1'] = { type: 'king', color: 'white' };
+                this.board['E1'] = { type: 'king', color: 'white', hasMoved: false };
                 this.board['F1'] = { type: 'bishop', color: 'white' };
                 this.board['G1'] = { type: 'knight', color: 'white' };
-                this.board['H1'] = { type: 'rook', color: 'white' };
+                this.board['H1'] = { type: 'rook', color: 'white', hasMoved: false };
 
                 for (let file of 'ABCDEFGH') {
-                    this.board[file + '2'] = { type: 'pawn', color: 'white' };
+                    this.board[file + '2'] = { type: 'pawn', color: 'white', hasMoved: false };
                 }
 
                 // Initialize black pieces
-                this.board['A8'] = { type: 'rook', color: 'black' };
+                this.board['A8'] = { type: 'rook', color: 'black', hasMoved: false };
                 this.board['B8'] = { type: 'knight', color: 'black' };
                 this.board['C8'] = { type: 'bishop', color: 'black' };
                 this.board['D8'] = { type: 'queen', color: 'black' };
-                this.board['E8'] = { type: 'king', color: 'black' };
+                this.board['E8'] = { type: 'king', color: 'black', hasMoved: false };
                 this.board['F8'] = { type: 'bishop', color: 'black' };
                 this.board['G8'] = { type: 'knight', color: 'black' };
-                this.board['H8'] = { type: 'rook', color: 'black' };
+                this.board['H8'] = { type: 'rook', color: 'black', hasMoved: false };
 
                 for (let file of 'ABCDEFGH') {
-                    this.board[file + '7'] = { type: 'pawn', color: 'black' };
+                    this.board[file + '7'] = { type: 'pawn', color: 'black', hasMoved: false };
                 }
             }
 
-            makeMove(from, to) {
+            isValidMove(from, to) {
                 const piece = this.board[from];
                 if (!piece || piece.color !== this.currentPlayer) return false;
+                
+                // Can't capture your own pieces
+                if (this.board[to] && this.board[to].color === piece.color) return false;
 
+                const [fromFile, fromRank] = [from.charCodeAt(0) - 65, parseInt(from[1])];
+                const [toFile, toRank] = [to.charCodeAt(0) - 65, parseInt(to[1])];
+                const fileDiff = Math.abs(toFile - fromFile);
+                const rankDiff = Math.abs(toRank - fromRank);
+
+                switch (piece.type) {
+                    case 'pawn':
+                        const direction = piece.color === 'white' ? 1 : -1;
+                        
+                        // Forward movement (no capture)
+                        if (fileDiff === 0 && !this.board[to]) {
+                            // Normal one square forward move
+                            if (rankDiff === 1 && (toRank - fromRank) === direction) {
+                                return true;
+                            }
+                            // First move - two squares forward
+                            if (!piece.hasMoved && rankDiff === 2 && 
+                                (toRank - fromRank) === 2 * direction) {
+                                const middleSquare = from[0] + (parseInt(from[1]) + direction);
+                                return !this.board[middleSquare];
+                            }
+                        }
+                        
+                        // Diagonal capture
+                        if (fileDiff === 1 && rankDiff === 1 && 
+                            (toRank - fromRank) === direction) {
+                            return this.board[to] && this.board[to].color !== piece.color;
+                        }
+                        return false;
+
+                    case 'knight':
+                        // L-shaped movement (2+1)
+                        return (fileDiff === 2 && rankDiff === 1) || 
+                               (fileDiff === 1 && rankDiff === 2);
+
+                    case 'bishop':
+                        // Diagonal movement only
+                        if (fileDiff !== rankDiff) return false;
+                        return this.isDiagonalPathClear(from, to);
+
+                    case 'rook':
+                        // Horizontal or vertical movement only
+                        if (fileDiff !== 0 && rankDiff !== 0) return false;
+                        return this.isStraightPathClear(from, to);
+
+                    case 'queen':
+                        // Combination of bishop and rook movements
+                        if (fileDiff === rankDiff) return this.isDiagonalPathClear(from, to);
+                        if (fileDiff === 0 || rankDiff === 0) return this.isStraightPathClear(from, to);
+                        return false;
+
+                    case 'king':
+                        // One square in any direction
+                        return fileDiff <= 1 && rankDiff <= 1;
+                }
+                return false;
+            }
+
+            makeMove(from, to) {
+                if (!this.isValidMove(from, to)) return false;
+                
+                const piece = this.board[from];
+                
+                // Update hasMoved status for pawns, kings, and rooks
+                if (piece.type === 'pawn' || piece.type === 'king' || piece.type === 'rook') {
+                    piece.hasMoved = true;
+                }
+                
                 this.board[to] = piece;
                 delete this.board[from];
                 this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+                return true;
+            }
+
+            isDiagonalPathClear(from, to) {
+                const [fromFile, fromRank] = [from.charCodeAt(0) - 65, parseInt(from[1])];
+                const [toFile, toRank] = [to.charCodeAt(0) - 65, parseInt(to[1])];
+                const fileDir = Math.sign(toFile - fromFile);
+                const rankDir = Math.sign(toRank - fromRank);
+
+                let currentFile = fromFile + fileDir;
+                let currentRank = fromRank + rankDir;
+
+                while (currentFile !== toFile && currentRank !== toRank) {
+                    const square = String.fromCharCode(currentFile + 65) + currentRank;
+                    if (this.board[square]) return false;
+                    currentFile += fileDir;
+                    currentRank += rankDir;
+                }
+                return true;
+            }
+
+            isStraightPathClear(from, to) {
+                const [fromFile, fromRank] = [from.charCodeAt(0), parseInt(from[1])];
+                const [toFile, toRank] = [to.charCodeAt(0), parseInt(to[1])];
+
+                if (fromFile === toFile) {
+                    const dir = Math.sign(toRank - fromRank);
+                    for (let rank = fromRank + dir; rank !== toRank; rank += dir) {
+                        if (this.board[String.fromCharCode(fromFile) + rank]) return false;
+                    }
+                } else {
+                    const dir = Math.sign(toFile - fromFile);
+                    for (let file = fromFile + dir; file !== toFile; file += dir) {
+                        if (this.board[String.fromCharCode(file) + fromRank]) return false;
+                    }
+                }
                 return true;
             }
         }
