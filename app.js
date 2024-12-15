@@ -4,6 +4,7 @@ var fs = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 let blogPosts = [];
 const BLOGS_DIR = path.join(__dirname, 'blogs');
