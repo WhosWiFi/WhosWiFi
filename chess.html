@@ -91,6 +91,27 @@
                 font-size: 16px;
             }
         }
+
+        .difficulty-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .control-btn:hover {
+            background-color: #eee;
+        }
     </style>
     <script src="/stockfish.js"></script>
 </head>
@@ -99,6 +120,11 @@
         <div class="controls">
             <button class="control-btn" onclick="startNewGame('white')">Play as White</button>
             <button class="control-btn" onclick="startNewGame('black')">Play as Black</button>
+            <div class="difficulty-controls">
+                <button class="control-btn" onclick="setDifficulty('easy')">Easy</button>
+                <button class="control-btn" onclick="setDifficulty('medium')">Medium</button>
+                <button class="control-btn" onclick="setDifficulty('hard')">Hard</button>
+            </div>
         </div>
         <div id="board"></div>
         <div id="status"></div>
@@ -265,6 +291,24 @@
         let engine = null;
         let playerColor = 'white';
         let isPlayerTurn = true;
+        let currentDifficulty = 'medium';
+        const difficultySettings = {
+            easy: {
+                skillLevel: 2,
+                moveTime: 500,
+                moveDelay: 5000
+            },
+            medium: {
+                skillLevel: 10,
+                moveTime: 750,
+                moveDelay: 3000
+            },
+            hard: {
+                skillLevel: 20,
+                moveTime: 1000,
+                moveDelay: 500
+            }
+        };
 
         function initializeEngine() {
             engine = new Worker('/stockfish.js');
@@ -275,18 +319,21 @@
                     const from = move.substring(0, 2).toUpperCase();
                     const to = move.substring(2, 4).toUpperCase();
                     
-                    if (game.makeMove(from, to)) {
-                        createBoard();
-                        isPlayerTurn = true;
-                        updateStatus();
-                    }
+                    // Add delay based on difficulty
+                    setTimeout(() => {
+                        if (game.makeMove(from, to)) {
+                            createBoard();
+                            isPlayerTurn = true;
+                            updateStatus();
+                        }
+                    }, difficultySettings[currentDifficulty].moveDelay);
                 }
             };
             
             engine.postMessage('uci');
             engine.postMessage('isready');
             engine.postMessage('ucinewgame');
-            engine.postMessage('setoption name Skill Level value 10');
+            engine.postMessage(`setoption name Skill Level value ${difficultySettings[currentDifficulty].skillLevel}`);
         }
 
         function startNewGame(color) {
@@ -358,7 +405,7 @@
         function makeEngineMove() {
             const fen = getCurrentFEN();
             engine.postMessage(`position fen ${fen}`);
-            engine.postMessage(`go movetime 1000`);
+            engine.postMessage(`go movetime ${difficultySettings[currentDifficulty].moveTime}`);
         }
 
         function getCurrentFEN() {
@@ -410,6 +457,16 @@
         function updateStatus() {
             const status = document.getElementById('status');
             status.textContent = `Current turn: ${game.currentPlayer.toUpperCase()}`;
+        }
+
+        function setDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            engine.postMessage(`setoption name Skill Level value ${difficultySettings[difficulty].skillLevel}`);
+            
+            // Update visual feedback
+            document.querySelectorAll('.difficulty-controls .control-btn').forEach(btn => {
+                btn.style.backgroundColor = btn.textContent.toLowerCase() === difficulty ? '#afd' : '';
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
