@@ -474,6 +474,18 @@ app.get('/chess', function (req, res) {
   });
 });
 
+app.get('/puzzle', function (req, res) {
+  fs.readFile('puzzle.html', function (err, data) {
+    if (err) {
+      res.writeHead(404, {'Content-Type': 'text/html'});
+      return res.end('Puzzle game not found');
+    }
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(data);
+    return res.end();
+  });
+});
+
 app.listen(5123, function () {
   console.log('Example app listening on port 5123!');
 });

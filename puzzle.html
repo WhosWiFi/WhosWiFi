@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Puzzle</title>
+    <style>
+        body {
+            background-color: #000;
+            margin: 0;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Share Tech Mono', monospace;
+            color: #64ffda;
+        }
+
+        .title {
+            color: #64ffda;
+            font-size: 48px;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px #64ffda;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid #64ffda;
+            color: #64ffda;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            text-shadow: 0 0 5px #64ffda;
+        }
+
+        .puzzle-container {
+            position: relative;
+            border: 2px solid #64ffda;
+            margin: 20px;
+            touch-action: none;
+        }
+
+        .puzzle-piece {
+            position: absolute;
+            border: 1px solid #64ffda;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .puzzle-piece.empty {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px dashed #64ffda;
+        }
+
+        .upload-container {
+            text-align: center;
+            margin: 20px;
+            padding: 20px;
+            border: 2px dashed #64ffda;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .size-select {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid #64ffda;
+            color: #64ffda;
+            padding: 5px 10px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .moves-counter {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .puzzle-container {
+                max-width: 95vw;
+                max-height: 95vw;
+            }
+
+            .controls {
+                padding: 10px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">PHOTO PUZZLE</h1>
+    
+    <div class="controls">
+        <button class="control-btn" onclick="document.getElementById('fileInput').click()">
+            [ UPLOAD IMAGE ]
+        </button>
+        <select class="size-select" id="gridSize">
+            <option value="3">3 x 3</option>
+            <option value="4">4 x 4</option>
+            <option value="5">5 x 5</option>
+            <option value="6">6 x 6</option>
+        </select>
+        <button class="control-btn" onclick="shufflePuzzle()">[ SHUFFLE ]</button>
+        <button class="control-btn" onclick="resetPuzzle()">[ RESET ]</button>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <div class="puzzle-container" id="puzzleContainer"></div>
+    <div class="moves-counter">Moves: <span id="moveCount">0</span></div>
+
+    <script>
+        let pieces = [];
+        let emptyPiece = null;
+        let originalImage = null;
+        let moves = 0;
+        let gridSize = 3;
+        let isInitialized = false;
+
+        document.getElementById('fileInput').addEventListener('change', handleImageUpload);
+        document.getElementById('gridSize').addEventListener('change', (e) => {
+            gridSize = parseInt(e.target.value);
+            if (originalImage) {
+                initializePuzzle(originalImage);
+            }
+        });
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalImage = img;
+                        initializePuzzle(img);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function initializePuzzle(img) {
+            const container = document.getElementById('puzzleContainer');
+            container.innerHTML = '';
+            pieces = [];
+            moves = 0;
+            updateMoveCount();
+
+            // Calculate size to maintain aspect ratio
+            const maxSize = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.7);
+            const scale = Math.min(maxSize / img.width, maxSize / img.height);
+            const width = img.width * scale;
+            const height = img.height * scale;
+
+            container.style.width = width + 'px';
+            container.style.height = height + 'px';
+
+            const pieceWidth = width / gridSize;
+            const pieceHeight = height / gridSize;
+
+            // Create pieces
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    piece.style.width = pieceWidth + 'px';
+                    piece.style.height = pieceHeight + 'px';
+                    
+                    if (x === gridSize - 1 && y === gridSize - 1) {
+                        piece.classList.add('empty');
+                        emptyPiece = piece;
+                    } else {
+                        piece.style.backgroundImage = `url(${img.src})`;
+                        piece.style.backgroundSize = `${width}px ${height}px`;
+                        piece.style.backgroundPosition = 
+                            `-${x * pieceWidth}px -${y * pieceHeight}px`;
+                    }
+
+                    piece.dataset.x = x;
+                    piece.dataset.y = y;
+                    piece.style.transform = 
+                        `translate(${x * pieceWidth}px, ${y * pieceHeight}px)`;
+
+                    piece.addEventListener('click', () => movePiece(piece));
+                    container.appendChild(piece);
+                    pieces.push(piece);
+                }
+            }
+
+            isInitialized = true;
+            shufflePuzzle();
+        }
+
+        function movePiece(piece) {
+            if (!isInitialized || piece === emptyPiece) return;
+
+            const pieceX = parseInt(piece.dataset.x);
+            const pieceY = parseInt(piece.dataset.y);
+            const emptyX = parseInt(emptyPiece.dataset.x);
+            const emptyY = parseInt(emptyPiece.dataset.y);
+
+            if (isAdjacent(pieceX, pieceY, emptyX, emptyY)) {
+                // Swap positions
+                const tempX = piece.dataset.x;
+                const tempY = piece.dataset.y;
+                
+                piece.dataset.x = emptyPiece.dataset.x;
+                piece.dataset.y = emptyPiece.dataset.y;
+                emptyPiece.dataset.x = tempX;
+                emptyPiece.dataset.y = tempY;
+
+                updatePiecePosition(piece);
+                updatePiecePosition(emptyPiece);
+                
+                moves++;
+                updateMoveCount();
+                checkWin();
+            }
+        }
+
+        function updatePiecePosition(piece) {
+            const pieceWidth = piece.offsetWidth;
+            const pieceHeight = piece.offsetHeight;
+            piece.style.transform = 
+                `translate(${piece.dataset.x * pieceWidth}px, ${piece.dataset.y * pieceHeight}px)`;
+        }
+
+        function isAdjacent(x1, y1, x2, y2) {
+            return (Math.abs(x1 - x2) === 1 && y1 === y2) || 
+                   (Math.abs(y1 - y2) === 1 && x1 === x2);
+        }
+
+        function shufflePuzzle() {
+            if (!isInitialized) return;
+            
+            // Make random valid moves
+            for (let i = 0; i < gridSize * 100; i++) {
+                const emptyX = parseInt(emptyPiece.dataset.x);
+                const emptyY = parseInt(emptyPiece.dataset.y);
+                
+                const validMoves = pieces.filter(piece => 
+                    piece !== emptyPiece && 
+                    isAdjacent(parseInt(piece.dataset.x), 
+                              parseInt(piece.dataset.y), 
+                              emptyX, emptyY)
+                );
+
+                const randomPiece = validMoves[Math.floor(Math.random() * validMoves.length)];
+                movePiece(randomPiece);
+            }
+            
+            moves = 0;
+            updateMoveCount();
+        }
+
+        function resetPuzzle() {
+            if (originalImage) {
+                initializePuzzle(originalImage);
+            }
+        }
+
+        function updateMoveCount() {
+            document.getElementById('moveCount').textContent = moves;
+        }
+
+        function checkWin() {
+            const win = pieces.every(piece => {
+                const currentX = parseInt(piece.dataset.x);
+                const currentY = parseInt(piece.dataset.y);
+                return (currentX === gridSize - 1 && currentY === gridSize - 1) || 
+                       (piece.style.backgroundPosition === 
+                        `-${currentX * piece.offsetWidth}px -${currentY * piece.offsetHeight}px`);
+            });
+
+            if (win) {
+                setTimeout(() => {
+                    alert(`Puzzle solved in ${moves} moves!`);
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>
