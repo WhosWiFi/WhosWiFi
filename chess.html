@@ -112,6 +112,52 @@
         .control-btn:hover {
             background-color: #eee;
         }
+
+        .move-history {
+            background: #2c2c2c;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            width: 300px;
+        }
+
+        .move-history h3 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+
+        #moveList {
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .move-entry {
+            padding: 5px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .move-entry.white {
+            background: #363636;
+        }
+
+        .move-entry.black {
+            background: #2c2c2c;
+        }
+
+        .move-entry.capture {
+            color: #ff6b6b;
+        }
+
+        .move-entry.status {
+            color: #ffd700;
+            font-style: italic;
+            text-align: center;
+        }
     </style>
     <script src="/stockfish.js"></script>
 </head>
@@ -126,7 +172,13 @@
                 <button class="control-btn" onclick="setDifficulty('hard')">Hard</button>
             </div>
         </div>
-        <div id="board"></div>
+        <div class="board-container">
+            <div id="board"></div>
+        </div>
+        <div class="move-history">
+            <h3>Move History</h3>
+            <div id="moveList"></div>
+        </div>
         <div id="status"></div>
     </div>
 
@@ -237,14 +289,16 @@
                 if (!this.isValidMove(from, to)) return false;
                 
                 const piece = this.board[from];
+                const capturedPiece = this.board[to];
                 
-                // Update hasMoved status for pawns, kings, and rooks
-                if (piece.type === 'pawn' || piece.type === 'king' || piece.type === 'rook') {
-                    piece.hasMoved = true;
-                }
-                
+                // Make the move
                 this.board[to] = piece;
                 delete this.board[from];
+                
+                // Add move to history
+                this.addMoveToHistory(from, to, piece, capturedPiece);
+                
+                // Update game state
                 this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
                 return true;
             }
@@ -283,6 +337,39 @@
                     }
                 }
                 return true;
+            }
+
+            addMoveToHistory(from, to, piece, capturedPiece) {
+                const moveList = document.getElementById('moveList');
+                const moveEntry = document.createElement('div');
+                moveEntry.className = `move-entry ${piece.color}`;
+                
+                let description;
+                if (capturedPiece) {
+                    description = `${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} takes ${to}`;
+                    moveEntry.className += ' capture';
+                } else {
+                    description = `${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} to ${to}`;
+                }
+                
+                moveEntry.textContent = description;
+                moveList.appendChild(moveEntry);
+                
+                if (this.gameStatus === 'check' || this.gameStatus === 'checkmate') {
+                    const statusEntry = document.createElement('div');
+                    statusEntry.className = `move-entry status ${piece.color}`;
+                    statusEntry.textContent = this.gameStatus === 'check' ? 'Check!' : 'Checkmate!';
+                    moveList.appendChild(statusEntry);
+                }
+                
+                moveList.scrollTop = moveList.scrollHeight;
+            }
+
+            clearMoveHistory() {
+                const moveList = document.getElementById('moveList');
+                if (moveList) {
+                    moveList.innerHTML = '';
+                }
             }
         }
 
