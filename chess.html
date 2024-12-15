@@ -479,6 +479,13 @@
             game = new ChessGame();
             selectedSquare = null;
             isPlayerTurn = (color === 'white');
+            
+            // Clear move history
+            const moveList = document.getElementById('moveList');
+            if (moveList) {
+                moveList.innerHTML = '';
+            }
+            
             createBoard();
             updateStatus();
 
