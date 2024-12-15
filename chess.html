@@ -340,10 +340,10 @@
                 
                 let description;
                 if (capturedPiece) {
-                    description = `${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} takes ${to}`;
+                    description = `${piece.color === 'white' ? 'White' : 'Black'} ${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} takes ${capturedPiece.type.charAt(0).toUpperCase() + capturedPiece.type.slice(1)} ${to}`;
                     moveEntry.className += ' capture';
                 } else {
-                    description = `${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} to ${to}`;
+                    description = `${piece.color === 'white' ? 'White' : 'Black'} ${piece.type.charAt(0).toUpperCase() + piece.type.slice(1)} ${from} to ${to}`;
                 }
                 
                 moveEntry.textContent = description;
