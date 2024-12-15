@@ -52,6 +52,45 @@
             margin-top: 20px;
             font-size: 18px;
         }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            #board {
+                width: 100vw;
+                height: 100vw;
+                max-width: 95vmin;
+                max-height: 95vmin;
+            }
+
+            .square {
+                width: auto;
+                height: auto;
+                touch-action: manipulation;
+            }
+
+            .piece {
+                font-size: 7vmin;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+
+            .controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .control-btn {
+                padding: 15px 25px;
+                font-size: 16px;
+            }
+        }
     </style>
     <script src="/stockfish.js"></script>
 </head>
@@ -289,6 +328,7 @@
         }
 
         function handleSquareClick(event) {
+            event.preventDefault(); // Prevent double-tap zoom
             if (!isPlayerTurn) return;
 
             const square = event.currentTarget;
@@ -375,6 +415,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeEngine();
             startNewGame('white');
+
+            // Prevent zoom on double tap
+            document.addEventListener('touchend', (e) => {
+                e.preventDefault();
+            }, { passive: false });
         });
     </script>
 </body>

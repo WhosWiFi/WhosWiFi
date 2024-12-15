@@ -89,6 +89,52 @@
             margin-top: 25px;
             font-size: 1.2em;
         }
+
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            gap: 10px;
+        }
+
+        .control-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding-bottom: 150px;
+            }
+
+            .mobile-controls {
+                display: block;
+            }
+
+            canvas {
+                max-width: 95vmin;
+                height: auto;
+            }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -112,6 +158,17 @@
             <h2>GAME OVER</h2>
             <p>SCORE: <span id="finalScore">0</span></p>
             <p>Press ENTER to restart</p>
+        </div>
+    </div>
+
+    <div class="mobile-controls">
+        <div class="control-row">
+            <button class="control-btn" id="rotateBtn">↻</button>
+        </div>
+        <div class="control-row">
+            <button class="control-btn" id="leftBtn">←</button>
+            <button class="control-btn" id="dropBtn">↓</button>
+            <button class="control-btn" id="rightBtn">→</button>
         </div>
     </div>
 
@@ -187,6 +244,7 @@
 
             // NES Tetris keyboard controls
             document.addEventListener('keydown', handleInput);
+            initMobileControls();
         }
 
         function resetGame() {
@@ -466,6 +524,37 @@
 
         // Start game
         init();
+
+        function initMobileControls() {
+            const controls = {
+                leftBtn: 37,  // Left arrow
+                rightBtn: 39, // Right arrow
+                rotateBtn: 38, // Up arrow
+                dropBtn: 40   // Down arrow
+            };
+
+            Object.entries(controls).forEach(([btnId, keyCode]) => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    ['touchstart', 'mousedown'].forEach(eventType => {
+                        btn.addEventListener(eventType, (e) => {
+                            e.preventDefault();
+                            handleInput({ keyCode });
+                        });
+                    });
+                }
+            });
+
+            // Prevent default touch behaviors
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+
+            // Prevent zoom on double tap
+            document.addEventListener('touchend', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+        }
     </script>
 </body>
 </html>
