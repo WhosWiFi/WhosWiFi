@@ -385,10 +385,36 @@
             const square = event.currentTarget;
             const notation = square.dataset.square;
 
+            // Clear all previous highlights
             document.querySelectorAll('.square').forEach(sq => {
                 sq.classList.remove('selected', 'valid-move');
             });
 
+            // If clicking a new piece of player's color
+            const piece = game.board[notation];
+            if (piece && piece.color === playerColor) {
+                selectedSquare = notation;
+                square.classList.add('selected');
+                
+                // Show valid moves for this piece
+                const files = 'ABCDEFGH';
+                const ranks = '12345678';
+                
+                for (let file of files) {
+                    for (let rank of ranks) {
+                        const targetSquare = file + rank;
+                        if (game.isValidMove(notation, targetSquare)) {
+                            const validSquare = document.querySelector(`[data-square="${targetSquare}"]`);
+                            if (validSquare) {
+                                validSquare.classList.add('valid-move');
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+
+            // If a piece was previously selected and clicking a valid move square
             if (selectedSquare) {
                 if (game.makeMove(selectedSquare, notation)) {
                     createBoard();
@@ -397,12 +423,6 @@
                     setTimeout(makeEngineMove, 500);
                 }
                 selectedSquare = null;
-            } else {
-                const piece = game.board[notation];
-                if (piece && piece.color === playerColor) {
-                    selectedSquare = notation;
-                    square.classList.add('selected');
-                }
             }
         }
 
