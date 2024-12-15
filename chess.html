@@ -161,11 +161,68 @@
             font-style: italic;
             text-align: center;
         }
+
+        .controls-container {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .color-controls,
+        .difficulty-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-controls h3,
+        .difficulty-controls h3 {
+            color: #fff;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: background-color 0.3s;
+            width: 100px;
+        }
+
+        .control-btn:hover {
+            background-color: #eee;
+        }
+
+        .control-btn.active {
+            background-color: #afd;
+        }
     </style>
     <script src="/stockfish.js"></script>
 </head>
 <body>
     <div class="game-container">
+        <div class="controls-container">
+            <div class="color-controls">
+                <h3>Play as:</h3>
+                <button class="control-btn" onclick="startNewGame('white')">White</button>
+                <button class="control-btn" onclick="startNewGame('black')">Black</button>
+            </div>
+            <div class="difficulty-controls">
+                <h3>Difficulty:</h3>
+                <button class="control-btn" onclick="setDifficulty('easy')">Easy</button>
+                <button class="control-btn" onclick="setDifficulty('medium')">Medium</button>
+                <button class="control-btn" onclick="setDifficulty('hard')">Hard</button>
+            </div>
+        </div>
         <div class="board-container">
             <div id="board"></div>
             <div id="status"></div>
