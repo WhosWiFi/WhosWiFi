@@ -260,14 +260,10 @@
       <button type="submit" class="submit-btn">[ AUTHENTICATE ]</button>
     </form>
 
-    <form class="auth-form" id="register-form">
+    <form class="auth-form" id="registerForm">
       <div class="form-group">
         <label for="register-username">Username:</label>
         <input type="text" id="register-username" name="username" required>
-      </div>
-      <div class="form-group">
-        <label for="register-email">Email:</label>
-        <input type="email" id="register-email" name="email" required>
       </div>
       <div class="form-group">
         <label for="register-password">Password:</label>
@@ -282,99 +278,45 @@
   </div>
 
   <script>
-    function switchTab(tab) {
-      // Update tab buttons
-      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      // Update forms
-      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-      if (tab === 'login') {
-        document.getElementById('login-form').classList.add('active');
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      if(result.success) {
+        window.location.href = `/`;
+      }
+      if (!result.success) {
+        alert('Invalid login credentials');
+      }
+    });
+    const registrationForm = document.getElementById('registerForm');
+    registrationForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert('Registration successful! You can now log in.');
       } else {
-        document.getElementById('register-form').classList.add('active');
-      }
+        alert('Username already exists');
     }
-
-    // Handle login form submission
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
-
-      try {
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          // Redirect to home page with username
-          window.location.href = `/home?username=${encodeURIComponent(result.username)}`;
-        } else {
-          showError(result.message || 'Login failed');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
-        showError('An error occurred during login');
-      }
-    });
-
-    // Handle registration form submission
-    document.getElementById('register-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const username = document.getElementById('register-username').value;
-      const email = document.getElementById('register-email').value;
-      const password = document.getElementById('register-password').value;
-      const confirmPassword = document.getElementById('register-confirm').value;
-
-      // Check if passwords match
-      if (password !== confirmPassword) {
-        showError('Passwords do not match');
-        return;
-      }
-
-      try {
-        const response = await fetch('/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            username, 
-            email, 
-            password 
-          })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          // Show success message and switch to login tab
-          alert('Registration successful! Please log in.');
-          switchTab('login');
-          // Clear registration form
-          document.getElementById('register-form').reset();
-        } else {
-          showError(result.message || 'Registration failed');
-        }
-      } catch (error) {
-        console.error('Registration error:', error);
-        showError('An error occurred during registration');
-      }
-    });
-
-    function showError(message) {
-      const errorDiv = document.getElementById('error-message');
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-      setTimeout(() => {
-        errorDiv.style.display = 'none';
-      }, 3000);
-    }
+  });
   </script>
 </body>
 </html>

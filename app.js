@@ -31,6 +31,13 @@ db.getConnection((err, connection) => {
   connection.release();
 });
 
+console.log('Database Config:', {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  database: process.env.DB_DATABASE,
+  // Don't log the password for security
+});
+
 app.post('/register', (req, res) => {
   const { username, password, color = 'white' } = req.body; // Default color if not provided
 
