@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var express = require('express');
 var app = express();
 var fs = require('fs');
@@ -13,10 +15,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Create a connection pool to the MySQL database
 const db = mysql.createPool({
-  host: 'localhost',        // MySQL server hostname
-  user: 'root',             // MySQL username
-  password: 'password',     // MySQL password
-  database: 'whoswifi'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
 });
 
 // Test the connection
