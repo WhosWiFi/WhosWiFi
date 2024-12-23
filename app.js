@@ -3,8 +3,76 @@ var app = express();
 var fs = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+const mysql = require('mysql2');
+const bcrypt = require('bcrypt');
+
+// Middleware
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Create a connection pool to the MySQL database
+const db = mysql.createPool({
+  host: 'localhost',        // MySQL server hostname
+  user: 'root',             // MySQL username
+  password: 'password',     // MySQL password
+  database: 'whoswifi'
+});
+
+// Test the connection
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to MySQL database');
+  connection.release();
+});
+
+app.post('/register', (req, res) => {
+  const { username, password, color = 'white' } = req.body; // Default color if not provided
+
+  // Hash the password before storing
+  bcrypt.hash(password, saltRounds, (err, hash) => {
+    if (err) return res.json({ success: false });
+
+    // Insert user into the database
+    const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
+    db.query(query, [username, hash], (err, results) => {
+      if (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.json({ success: false, message: 'Username already exists' });
+        }
+        console.error('Database error:', err); // Log the actual error
+        return res.json({ success: false, message: 'Database error' });
+      }
+      res.json({ success: true });
+    });
+  });
+});
+
+// Login users
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Check if the user exists
+  const query = 'SELECT * FROM users WHERE username = ?';
+  db.query(query, [username], (err, results) => {
+    if (err) return res.json({ success: false, message: 'Database error' });
+    if (results.length === 0) return res.json({ success: false, message: 'User not found' });
+
+    const user = results[0];
+
+    // Compare passwords
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (result) {
+        res.json({ success: true, username });
+      } else {
+        res.json({ success: false, message: 'Invalid password' });
+      }
+    });
+  });
+});
 
 let blogPosts = [];
 const BLOGS_DIR = path.join(__dirname, 'blogs');

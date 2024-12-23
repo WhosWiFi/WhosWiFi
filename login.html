@@ -296,29 +296,75 @@
       }
     }
 
-    // Handle form submissions
-    document.getElementById('login-form').addEventListener('submit', function(e) {
+    // Handle login form submission
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      // Add your login logic here
-      console.log('Login attempt:', {
-        username: document.getElementById('login-username').value,
-        password: document.getElementById('login-password').value
-      });
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          // Redirect to home page with username
+          window.location.href = `/home?username=${encodeURIComponent(result.username)}`;
+        } else {
+          showError(result.message || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showError('An error occurred during login');
+      }
     });
 
-    document.getElementById('register-form').addEventListener('submit', function(e) {
+    // Handle registration form submission
+    document.getElementById('register-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      // Add your registration logic here
-      if (document.getElementById('register-password').value !== 
-          document.getElementById('register-confirm').value) {
+      const username = document.getElementById('register-username').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm').value;
+
+      // Check if passwords match
+      if (password !== confirmPassword) {
         showError('Passwords do not match');
         return;
       }
-      console.log('Registration attempt:', {
-        username: document.getElementById('register-username').value,
-        email: document.getElementById('register-email').value,
-        password: document.getElementById('register-password').value
-      });
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            username, 
+            email, 
+            password 
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          // Show success message and switch to login tab
+          alert('Registration successful! Please log in.');
+          switchTab('login');
+          // Clear registration form
+          document.getElementById('register-form').reset();
+        } else {
+          showError(result.message || 'Registration failed');
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        showError('An error occurred during registration');
+      }
     });
 
     function showError(message) {
