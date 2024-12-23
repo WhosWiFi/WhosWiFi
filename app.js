@@ -38,6 +38,9 @@ console.log('Database Config:', {
   // Don't log the password for security
 });
 
+// Add this near the top with your other constants
+const saltRounds = 10;
+
 app.get('/register_page', function (req, res) {
   fs.readFile('registration.html', function (err, data) {
       res.writeHead(200, {'Content-Type': 'text/html'});
@@ -47,23 +50,31 @@ app.get('/register_page', function (req, res) {
 });
 
 app.post('/register', (req, res) => {
-  const { username, password, color = 'white' } = req.body; // Default color if not provided
+  const { username, password } = req.body;
+
+  // Basic validation
+  if (!username || !password) {
+    return res.json({ success: false, message: 'Username and password are required' });
+  }
 
   // Hash the password before storing
   bcrypt.hash(password, saltRounds, (err, hash) => {
-    if (err) return res.json({ success: false });
+    if (err) {
+      console.error('Hashing error:', err);
+      return res.json({ success: false, message: 'Error processing registration' });
+    }
 
     // Insert user into the database
     const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
     db.query(query, [username, hash], (err, results) => {
       if (err) {
+        console.error('Database error:', err);
         if (err.code === 'ER_DUP_ENTRY') {
           return res.json({ success: false, message: 'Username already exists' });
         }
-        console.error('Database error:', err); // Log the actual error
         return res.json({ success: false, message: 'Database error' });
       }
-      res.json({ success: true });
+      res.json({ success: true, message: 'Registration successful!' });
     });
   });
 });
