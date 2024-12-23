@@ -3,267 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - WhosWiFi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <title>Login Page</title>
   <style>
-    :root {
-      --neon-text-color: #64ffda;
-      --neon-border-color: #08f;
-    }
-
     body {
-      margin: 0;
-      padding-top: 60px;
-      background-color: #0a0a0a;
-      font-family: 'Share Tech Mono', monospace;
-      color: var(--neon-text-color);
-      min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-    }
-
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-    }
-
-    .nav-links {
-      display: flex;
-      justify-content: stretch;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      width: 100%;
-      border-bottom: 1px solid var(--neon-text-color);
-    }
-
-    .nav-links li {
-      position: relative;
-      flex: 1;
-      text-align: center;
-    }
-
-    .nav-links li:not(:last-child)::after {
-      content: "||";
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--neon-text-color);
-      opacity: 0.5;
-    }
-
-    .nav-links a {
-      color: var(--neon-text-color);
-      text-decoration: none;
-      font-size: 1.1rem;
-      transition: all 0.3s ease;
-      padding: 1rem 0;
-      display: block;
-      width: 100%;
-    }
-
-    .nav-links a:hover {
-      background: rgba(100, 255, 218, 0.1);
-      text-shadow: none;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
     }
 
     .container {
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid var(--neon-text-color);
-      padding: 2rem;
-      margin: 2rem;
+      text-align: center;
       width: 300px;
-      box-shadow: 0 0 15px rgba(100, 255, 218, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      background-color: white;
     }
 
     input {
+      display: block;
       width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      background: rgba(100, 255, 218, 0.1);
-      border: 1px solid var(--neon-text-color);
-      color: var(--neon-text-color);
-      font-family: 'Share Tech Mono', monospace;
-      box-sizing: border-box;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 1rem;
     }
 
     button {
-      width: 100%;
-      padding: 0.5rem;
-      background: rgba(100, 255, 218, 0.1);
-      border: 1px solid var(--neon-text-color);
-      color: var(--neon-text-color);
-      font-family: 'Share Tech Mono', monospace;
+      padding: 10px 20px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: all 0.3s ease;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
     }
 
-    button:hover {
-      background: rgba(100, 255, 218, 0.2);
-    }
-
-    .auth-form {
-      display: none;
-    }
-
-    .auth-form.active {
+    .register-link {
+      margin-top: 10px;
       display: block;
-    }
-
-    .switch-form {
-      margin-top: 1rem;
-      color: var(--neon-text-color);
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .error-message {
-      color: #ff4444;
-      margin-bottom: 1rem;
-      display: none;
-      text-align: center;
-    }
-
-    h2 {
-      color: var(--neon-text-color);
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-      .nav-links {
-        flex-wrap: wrap;
-      }
-
-      .nav-links li {
-        flex: 1 1 auto;
-        min-width: 33.33%;
-      }
-
-      .container {
-        width: 90%;
-        margin: 1rem;
-        padding: 1rem;
-      }
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <nav>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/apps">Apps</a></li>
-      <li><a href="/blog">Blog</a></li>
-      <li><a href="/shop">Shop</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/contact">Contact</a></li>
-      <li><a href="/login">Login/Register</a></li>
-    </ul>
-  </nav>
-
   <div class="container">
-    <div class="error-message" id="error-message"></div>
-
-    <form class="auth-form active" id="login-form">
-      <h2>[ LOGIN ]</h2>
-      <input type="text" id="login-username" placeholder="Username" required>
-      <input type="password" id="login-password" placeholder="Password" required>
-      <button type="submit">AUTHENTICATE</button>
-      <p class="switch-form" onclick="switchForm('register')">[ New User? Register here ]</p>
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit">Login</button>
     </form>
-
-    <form class="auth-form" id="register-form">
-      <h2>[ REGISTER ]</h2>
-      <input type="text" id="register-username" placeholder="Username" required>
-      <input type="password" id="register-password" placeholder="Password" required>
-      <input type="password" id="register-confirm" placeholder="Confirm Password" required>
-      <button type="submit">CREATE ACCOUNT</button>
-      <p class="switch-form" onclick="switchForm('login')">[ Already registered? Login here ]</p>
-    </form>
+    <a href="/register_page" class="register-link">New User? Register here</a>
   </div>
 
   <script>
-    function switchForm(form) {
-      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-      if (form === 'login') {
-        document.getElementById('login-form').classList.add('active');
-      } else {
-        document.getElementById('register-form').classList.add('active');
-      }
-      document.getElementById('error-message').style.display = 'none';
-    }
-
-    const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', async function (event) {
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', async function (event) {
       event.preventDefault();
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-      try {
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
 
-        const result = await response.json();
-        if(result.success) {
-          window.location.href = `/home?username=${encodeURIComponent(result.username)}`;
-        } else {
-          const errorMessage = document.getElementById('error-message');
-          errorMessage.textContent = result.message || 'Invalid login credentials';
-          errorMessage.style.display = 'block';
-        }
-      } catch (error) {
-        const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = 'An error occurred during login';
-        errorMessage.style.display = 'block';
+      const result = await response.json();
+      if(result.success) {
+        window.location.href = `/home?username=${encodeURIComponent(result.username)}`;
       }
-    });
-
-    const registerForm = document.getElementById('register-form');
-    registerForm.addEventListener('submit', async function (event) {
-      event.preventDefault();
-      const username = document.getElementById('register-username').value;
-      const password = document.getElementById('register-password').value;
-      const confirm = document.getElementById('register-confirm').value;
-      
-      const errorMessage = document.getElementById('error-message');
-      
-      if (password !== confirm) {
-        errorMessage.textContent = 'Passwords do not match';
-        errorMessage.style.display = 'block';
-        return;
-      }
-
-      try {
-        const response = await fetch('/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          errorMessage.style.display = 'none';
-          alert('Registration successful! You can now log in.');
-          switchForm('login');
-        } else {
-          errorMessage.textContent = result.message || 'Username already exists';
-          errorMessage.style.display = 'block';
-        }
-      } catch (error) {
-        errorMessage.textContent = 'An error occurred during registration';
-        errorMessage.style.display = 'block';
+      if (!result.success) {
+        alert('Invalid login credentials');
       }
     });
   </script>
