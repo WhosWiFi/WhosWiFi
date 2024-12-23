@@ -77,17 +77,11 @@
     }
 
     .container {
-      text-align: center;
-      width: 400px;  /* Increased from 300px */
-      padding: 3rem;  /* Increased from 2rem */
-      margin-top: 4rem;  /* Increased from 2rem */
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--neon-text-color);
-      background: rgba(100, 255, 218, 0.05);
-      position: relative;
-      min-height: 400px;  /* Added minimum height */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
     }
 
     .container::before {
@@ -100,15 +94,13 @@
     }
 
     input {
-      display: block;
       width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      font-size: 1rem;
-      background: rgba(0, 0, 0, 0.3);
+      padding: 0.5rem;
+      background: rgba(100, 255, 218, 0.1);
       border: 1px solid var(--neon-text-color);
       color: var(--neon-text-color);
       font-family: 'Share Tech Mono', monospace;
+      margin-bottom: 1.5rem;
     }
 
     input:focus {
@@ -117,20 +109,20 @@
     }
 
     button {
-      padding: 10px 20px;
+      width: 100%;
+      padding: 0.8rem;
+      background: transparent;
+      border: 1px solid var(--neon-text-color);
+      color: var(--neon-text-color);
+      font-family: 'Share Tech Mono', monospace;
       font-size: 1rem;
       cursor: pointer;
-      background: transparent;
-      color: var(--neon-text-color);
-      border: 1px solid var(--neon-text-color);
-      font-family: 'Share Tech Mono', monospace;
       transition: all 0.3s ease;
-      width: 100%;
     }
 
     button:hover {
       background: rgba(100, 255, 218, 0.1);
-      box-shadow: 0 0 10px var(--neon-text-color);
+      text-shadow: 0 0 5px var(--neon-text-color);
     }
 
     .register-link {
@@ -149,6 +141,32 @@
     h2 {
       color: var(--neon-text-color);
       margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    .error-message {
+      color: #ff4444;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #ff4444;
+      display: none;
+    }
+
+    .success-message {
+      color: var(--neon-text-color);
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border: 1px solid var(--neon-text-color);
+      display: none;
     }
 
     @media (max-width: 768px) {
