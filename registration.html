@@ -78,12 +78,16 @@
 
     .container {
       text-align: center;
-      width: 300px;
-      padding: 2rem;
-      margin-top: 2rem;
+      width: 400px;
+      padding: 3rem;
+      margin-top: 4rem;
       border: 1px solid var(--neon-text-color);
       background: rgba(100, 255, 218, 0.05);
       position: relative;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .container::before {
@@ -172,9 +176,10 @@
       }
 
       .container {
-        width: 90%;
-        margin: 1rem;
-        padding: 1rem;
+        width: 85%;
+        min-height: 350px;
+        margin: 2rem;
+        padding: 2rem;
       }
     }
   </style>
