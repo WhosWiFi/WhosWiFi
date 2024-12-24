@@ -94,7 +94,17 @@ app.post('/login', (req, res) => {
     // Compare passwords
     bcrypt.compare(password, user.password, (err, result) => {
       if (result) {
-        res.json({ success: true, username });
+        // If this is a login attempt from Chance
+        if (req.headers.referer && req.headers.referer.includes('chance.whoswifi.com')) {
+          res.json({ 
+            success: true, 
+            username,
+            redirectUrl: `https://chance.whoswifi.com/home?username=${encodeURIComponent(username)}`
+          });
+        } else {
+          // Regular login
+          res.json({ success: true, username });
+        }
       } else {
         res.json({ success: false, message: 'Invalid password' });
       }
@@ -580,6 +590,33 @@ app.get('/puzzle', function (req, res) {
     res.write(data);
     return res.end();
   });
+});
+
+app.get('chance_user', (req, res) => {
+  if (req.session && req.session.userId && req.session.username) {
+    res.json({
+      loggedIn: true,
+      username: req.session.username
+    });
+  } else {
+    res.json({
+      loggedIn: false
+    });
+  }
+});
+
+// Add this new endpoint to check login status
+app.get('/login/check', (req, res) => {
+  if (req.session && req.session.userId && req.session.username) {
+    res.json({
+      loggedIn: true,
+      username: req.session.username
+    });
+  } else {
+    res.json({
+      loggedIn: false
+    });
+  }
 });
 
 app.listen(5123, function () {

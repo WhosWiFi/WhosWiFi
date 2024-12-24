@@ -288,5 +288,24 @@
       </a>
     </div>
   </div>
+
+  <script>
+    function launchChance() {
+      fetch('/login/check')
+        .then(response => response.json())
+        .then(data => {
+          if (data.loggedIn) {
+            window.location.href = `https://chance.whoswifi.com/home?username=${encodeURIComponent(data.username)}`;
+          } else {
+            window.location.href = `https://chance.whoswifi.com/home?username=${encodeURIComponent('Guest')}`;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Default to Guest if there's an error
+          window.location.href = `https://chance.whoswifi.com/home?username=${encodeURIComponent('Guest')}`;
+        });
+    }
+  </script>
 </body>
 </html>
