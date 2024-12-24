@@ -140,7 +140,8 @@ app.post('/login', (req, res) => {
         });
         
         // Set cookie
-        res.cookie('whoswifi_session', token, {
+        res.cookie('whoswifi', token, {
+          domain: '.whoswifi.com',
           httpOnly: true,
           secure: true,
           sameSite: 'strict',
@@ -160,7 +161,7 @@ app.post('/login', (req, res) => {
 
 // Simplified verify token middleware
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.whoswifi_session;
+  const token = req.cookies.whoswifi;
   
   if (!token) {
     return res.status(401).json({ success: false, message: 'No token provided' });
