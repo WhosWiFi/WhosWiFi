@@ -57,6 +57,11 @@ app.post('/register', (req, res) => {
     return res.json({ success: false, message: 'Username and password are required' });
   }
 
+  // Prevent registration of "Guest" username
+  if (username.toLowerCase() === 'guest') {
+    return res.json({ success: false, message: 'Username "Guest" is reserved' });
+  }
+
   // Hash the password before storing
   bcrypt.hash(password, saltRounds, (err, hash) => {
     if (err) {
@@ -64,17 +69,54 @@ app.post('/register', (req, res) => {
       return res.json({ success: false, message: 'Error processing registration' });
     }
 
-    // Insert user into the database
-    const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
-    db.query(query, [username, hash], (err, results) => {
+    // Start a transaction to insert into both tables
+    db.getConnection((err, connection) => {
       if (err) {
-        console.error('Database error:', err);
-        if (err.code === 'ER_DUP_ENTRY') {
-          return res.json({ success: false, message: 'Username already exists' });
-        }
-        return res.json({ success: false, message: 'Database error' });
+        return res.json({ success: false, message: 'Database connection error' });
       }
-      res.json({ success: true, message: 'Registration successful!' });
+
+      connection.beginTransaction(err => {
+        if (err) {
+          connection.release();
+          return res.json({ success: false, message: 'Transaction error' });
+        }
+
+        // Insert into main users table
+        const userQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
+        connection.query(userQuery, [username, hash], (err, results) => {
+          if (err) {
+            return connection.rollback(() => {
+              connection.release();
+              if (err.code === 'ER_DUP_ENTRY') {
+                return res.json({ success: false, message: 'Username already exists' });
+              }
+              return res.json({ success: false, message: 'Database error' });
+            });
+          }
+
+          const chanceQuery = 'INSERT INTO chance (username, color) VALUES (?, ?)';
+          connection.query(chanceQuery, [username, 'white'], (err, results) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                return res.json({ success: false, message: 'Error creating game data' });
+              });
+            }
+
+            // Commit the transaction
+            connection.commit(err => {
+              if (err) {
+                return connection.rollback(() => {
+                  connection.release();
+                  return res.json({ success: false, message: 'Commit error' });
+                });
+              }
+              connection.release();
+              res.json({ success: true, message: 'Registration successful!' });
+            });
+          });
+        });
+      });
     });
   });
 });
