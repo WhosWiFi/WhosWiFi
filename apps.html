@@ -295,47 +295,12 @@
       fetch('/login/check')
         .then(response => response.json())
         .then(data => {
-          if (data.loggedIn && data.username) {
-            // User is logged in to whoswifi
-            // Check if they have chance data
-            fetch(`https://chance.whoswifi.com/check_user?username=${encodeURIComponent(data.username)}`)
-              .then(response => response.json())
-              .then(chanceData => {
-                if (chanceData.exists) {
-                  // User exists in chance table, redirect to game
-                  window.location.href = `https://chance.whoswifi.com/?username=${encodeURIComponent(data.username)}`;
-                } else {
-                  // User doesn't exist in chance table, create their entry
-                  fetch('https://chance.whoswifi.com/create_chance_user', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username: data.username })
-                  })
-                  .then(response => response.json())
-                  .then(result => {
-                    if (result.success) {
-                      window.location.href = `https://chance.whoswifi.com/?username=${encodeURIComponent(data.username)}`;
-                    } else {
-                      console.error('Failed to create chance user');
-                      window.location.href = `https://chance.whoswifi.com/?username=Guest`;
-                    }
-                  });
-                }
-              })
-              .catch(error => {
-                console.error('Chance error:', error);
-                window.location.href = `https://chance.whoswifi.com/?username=Guest`;
-              });
-          } else {
-            // Not logged in to whoswifi
-            window.location.href = `https://chance.whoswifi.com/?username=Guest`;
-          }
+          const username = data.loggedIn ? data.username : 'Guest';
+          window.location.href = `https://chance.whoswifi.com/?username=${encodeURIComponent(username)}`;
         })
         .catch(error => {
           console.error('Login check error:', error);
-          window.location.href = `https://chance.whoswifi.com/?username=Guest`;
+          window.location.href = 'https://chance.whoswifi.com/?username=Guest';
         });
     }
   </script>
