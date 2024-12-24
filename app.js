@@ -8,10 +8,13 @@ const path = require('path');
 app.use(express.static('public'));
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 // Middleware
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Create a connection pool to the MySQL database
 const db = mysql.createPool({
@@ -29,13 +32,6 @@ db.getConnection((err, connection) => {
   }
   console.log('Connected to MySQL database');
   connection.release();
-});
-
-console.log('Database Config:', {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  database: process.env.DB_DATABASE,
-  // Don't log the password for security
 });
 
 // Add this near the top with your other constants
@@ -136,6 +132,18 @@ app.post('/login', (req, res) => {
     // Compare passwords
     bcrypt.compare(password, user.password, (err, result) => {
       if (result) {
+        // Create a signed token with the username
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET);
+        
+        // Set secure cookie
+        res.cookie('whoswifi_session', token, {
+          domain: '.whoswifi.com',
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+
         // If this is a login attempt from Chance
         if (req.headers.referer && req.headers.referer.includes('chance.whoswifi.com')) {
           res.json({ 

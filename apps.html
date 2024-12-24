@@ -291,17 +291,8 @@
 
   <script>
     function launchChance() {
-      // First check if user is logged in on whoswifi
-      fetch('/login/check')
-        .then(response => response.json())
-        .then(data => {
-          const username = data.loggedIn ? data.username : 'Guest';
-          window.location.href = `https://chance.whoswifi.com/?username=${encodeURIComponent(username)}`;
-        })
-        .catch(error => {
-          console.error('Login check error:', error);
-          window.location.href = 'https://chance.whoswifi.com/?username=Guest';
-        });
+      // Simply redirect to Chance, it will handle auth via cookie
+      window.location.href = 'https://chance.whoswifi.com/';
     }
   </script>
 </body>
