@@ -212,24 +212,45 @@
   </div>
 
   <script>
-    const form = document.getElementById('loginForm');
-    form.addEventListener('submit', async function (event) {
-      event.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      const response = await fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include'
+        });
 
-      const result = await response.json();
-      if(result.success) {
-        window.location.href = `/`;
-      }
-      if (!result.success) {
-        alert('Invalid login credentials');
+        const data = await response.json();
+
+        if (data.success) {
+          // Store just username in localStorage
+          localStorage.setItem('username', data.username);
+
+          // Check for redirect parameter
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirect = urlParams.get('redirect');
+          
+          if (redirect === 'chance') {
+            window.location.href = `https://chance.whoswifi.com?username=${data.username}`;
+          } else {
+            window.location.href = '/';
+          }
+        } else {
+          document.getElementById('error-message').textContent = data.message;
+          document.getElementById('error-message').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        document.getElementById('error-message').textContent = 'An error occurred during login';
+        document.getElementById('error-message').style.display = 'block';
       }
     });
   </script>

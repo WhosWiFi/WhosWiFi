@@ -117,12 +117,12 @@ app.post('/register', (req, res) => {
   });
 });
 
-// Login users
+// Simplified login route with just username in JWT
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
   // Check if the user exists
-  const query = 'SELECT * FROM users WHERE username = ?';
+  const query = 'SELECT username, password FROM users WHERE username = ?';
   db.query(query, [username], (err, results) => {
     if (err) return res.json({ success: false, message: 'Database error' });
     if (results.length === 0) return res.json({ success: false, message: 'User not found' });
@@ -132,33 +132,54 @@ app.post('/login', (req, res) => {
     // Compare passwords
     bcrypt.compare(password, user.password, (err, result) => {
       if (result) {
-        // Create a signed token with the username
-        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET);
+        // Create a signed token with just username
+        const token = jwt.sign({ 
+          username: user.username
+        }, process.env.JWT_SECRET, {
+          expiresIn: '24h'
+        });
         
-        // Set secure cookie
+        // Set cookie
         res.cookie('whoswifi_session', token, {
-          domain: '.whoswifi.com',
           httpOnly: true,
           secure: true,
           sameSite: 'strict',
           maxAge: 24 * 60 * 60 * 1000 // 24 hours
         });
 
-        // If this is a login attempt from Chance
-        if (req.headers.referer && req.headers.referer.includes('chance.whoswifi.com')) {
-          res.json({ 
-            success: true, 
-            username,
-            redirectUrl: `https://chance.whoswifi.com/home?username=${encodeURIComponent(username)}`
-          });
-        } else {
-          // Regular login
-          res.json({ success: true, username });
-        }
+        res.json({ 
+          success: true, 
+          username: user.username
+        });
       } else {
         res.json({ success: false, message: 'Invalid password' });
       }
     });
+  });
+});
+
+// Simplified verify token middleware
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.whoswifi_session;
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.username = decoded.username;
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+};
+
+// Simplified login check endpoint
+app.get('/login/check', verifyToken, (req, res) => {
+  res.json({
+    loggedIn: true,
+    username: req.username
   });
 });
 
@@ -643,20 +664,6 @@ app.get('/puzzle', function (req, res) {
 });
 
 app.get('chance_user', (req, res) => {
-  if (req.session && req.session.userId && req.session.username) {
-    res.json({
-      loggedIn: true,
-      username: req.session.username
-    });
-  } else {
-    res.json({
-      loggedIn: false
-    });
-  }
-});
-
-// Add this new endpoint to check login status
-app.get('/login/check', (req, res) => {
   if (req.session && req.session.userId && req.session.username) {
     res.json({
       loggedIn: true,
