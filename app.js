@@ -97,16 +97,19 @@ app.post('/register', (req, res) => {
           return res.json({ success: false, message: 'Database error' });
         }
 
+        const userId = results.insertId; // Get the ID from the first insert
+
         // Only proceed to chance database after successful whoswifi insert
         chanceDb.getConnection((err, chanceConnection) => {
           if (err) {
             return res.json({ success: false, message: 'Chance database connection error' });
           }
 
-          const chanceQuery = 'INSERT INTO user_data (username, color, collected_tiers, achievements) VALUES (?, ?, ?, ?)';
-          chanceConnection.query(chanceQuery, [username, 'white', null, null], (err, results) => {
+          const chanceQuery = 'INSERT INTO user_data (whoswifi_id, username, color) VALUES (?, ?, ?)';
+          chanceConnection.query(chanceQuery, [userId, username, 'white'], (err, results) => {
             chanceConnection.release();
             if (err) {
+              console.error('Chance query error:', err);
               return res.json({ success: false, message: 'Error creating game data' });
             }
             
