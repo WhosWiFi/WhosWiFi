@@ -21,7 +21,15 @@ const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  database: 'whoswifi'
+});
+
+// Add second connection pool for chance database
+const chanceDb = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'chance',
 });
 
 // Test the connection
@@ -31,6 +39,16 @@ db.getConnection((err, connection) => {
     return;
   }
   console.log('Connected to MySQL database');
+  connection.release();
+});
+
+// Test the chance connection
+chanceDb.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to the chance database:', err);
+    return;
+  }
+  console.log('Connected to Chance MySQL database');
   connection.release();
 });
 
@@ -53,65 +71,48 @@ app.post('/register', (req, res) => {
     return res.json({ success: false, message: 'Username and password are required' });
   }
 
-  // Prevent registration of "Guest" username
   if (username.toLowerCase() === 'guest') {
     return res.json({ success: false, message: 'Username "Guest" is reserved' });
   }
 
-  // Hash the password before storing
   bcrypt.hash(password, saltRounds, (err, hash) => {
     if (err) {
       console.error('Hashing error:', err);
       return res.json({ success: false, message: 'Error processing registration' });
     }
 
-    // Start a transaction to insert into both tables
+    // First database operation
     db.getConnection((err, connection) => {
       if (err) {
         return res.json({ success: false, message: 'Database connection error' });
       }
 
-      connection.beginTransaction(err => {
+      const userQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
+      connection.query(userQuery, [username, hash], (err, results) => {
+        connection.release();
         if (err) {
-          connection.release();
-          return res.json({ success: false, message: 'Transaction error' });
-        }
-
-        // Insert into main users table
-        const userQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
-        connection.query(userQuery, [username, hash], (err, results) => {
-          if (err) {
-            return connection.rollback(() => {
-              connection.release();
-              if (err.code === 'ER_DUP_ENTRY') {
-                return res.json({ success: false, message: 'Username already exists' });
-              }
-              return res.json({ success: false, message: 'Database error' });
-            });
+          if (err.code === 'ER_DUP_ENTRY') {
+            return res.json({ success: false, message: 'Username already exists' });
           }
+          return res.json({ success: false, message: 'Database error' });
+        }
+      });
+    });
 
-          const chanceQuery = 'INSERT INTO chance (username, color) VALUES (?, ?)';
-          connection.query(chanceQuery, [username, 'white'], (err, results) => {
-            if (err) {
-              return connection.rollback(() => {
-                connection.release();
-                return res.json({ success: false, message: 'Error creating game data' });
-              });
-            }
+    // Second database operation
+    chanceDb.getConnection((err, chanceConnection) => {
+      if (err) {
+        return res.json({ success: false, message: 'Chance database connection error' });
+      }
 
-            // Commit the transaction
-            connection.commit(err => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  return res.json({ success: false, message: 'Commit error' });
-                });
-              }
-              connection.release();
-              res.json({ success: true, message: 'Registration successful!' });
-            });
-          });
-        });
+      const chanceQuery = 'INSERT INTO user_data (username, color, collected_tiers, achievements) VALUES (?, ?, ?, ?)';
+      chanceConnection.query(chanceQuery, [username, 'white', null, null], (err, results) => {
+        chanceConnection.release();
+        if (err) {
+          return res.json({ success: false, message: 'Error creating game data' });
+        }
+        
+        res.json({ success: true, message: 'Registration successful!' });
       });
     });
   });
