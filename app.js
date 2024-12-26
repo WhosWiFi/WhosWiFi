@@ -16,6 +16,8 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+//registration works for both databases
+
 // Create a connection pool to the MySQL database
 const db = mysql.createPool({
   host: process.env.DB_HOST,
