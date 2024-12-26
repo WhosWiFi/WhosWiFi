@@ -96,23 +96,23 @@ app.post('/register', (req, res) => {
           }
           return res.json({ success: false, message: 'Database error' });
         }
-      });
-    });
 
-    // Second database operation
-    chanceDb.getConnection((err, chanceConnection) => {
-      if (err) {
-        return res.json({ success: false, message: 'Chance database connection error' });
-      }
+        // Only proceed to chance database after successful whoswifi insert
+        chanceDb.getConnection((err, chanceConnection) => {
+          if (err) {
+            return res.json({ success: false, message: 'Chance database connection error' });
+          }
 
-      const chanceQuery = 'INSERT INTO user_data (username, color, collected_tiers, achievements) VALUES (?, ?, ?, ?)';
-      chanceConnection.query(chanceQuery, [username, 'white', null, null], (err, results) => {
-        chanceConnection.release();
-        if (err) {
-          return res.json({ success: false, message: 'Error creating game data' });
-        }
-        
-        res.json({ success: true, message: 'Registration successful!' });
+          const chanceQuery = 'INSERT INTO user_data (username, color, collected_tiers, achievements) VALUES (?, ?, ?, ?)';
+          chanceConnection.query(chanceQuery, [username, 'white', null, null], (err, results) => {
+            chanceConnection.release();
+            if (err) {
+              return res.json({ success: false, message: 'Error creating game data' });
+            }
+            
+            res.json({ success: true, message: 'Registration successful!' });
+          });
+        });
       });
     });
   });
