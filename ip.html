@@ -7,6 +7,41 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <script>
+    // Immediately start checking login status
+    const authCheck = fetch('/login/check', {
+      credentials: 'include'
+    }).then(res => res.json());
+
+    // This will run before the page content loads
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const data = await authCheck; // Use the promise we started earlier
+        const navLinks = document.querySelector('.nav-links');
+        const loginItem = navLinks.querySelector('li:last-child');
+        
+        if (data.loggedIn) {
+          loginItem.innerHTML = '<a href="#" onclick="handleLogout(event)">Logout</a>';
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    });
+
+    // Define logout handler globally
+    function handleLogout(event) {
+      event.preventDefault();
+      fetch('/logout', {
+        credentials: 'include'
+      }).then(response => {
+        if (response.ok) {
+          window.location.href = '/';
+        }
+      }).catch(error => {
+        console.error('Error during logout:', error);
+      });
+    }
+  </script>
   <style>
     :root {
       --neon-text-color: #64ffda;
