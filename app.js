@@ -89,33 +89,45 @@ app.post('/register', (req, res) => {
         return res.json({ success: false, message: 'Database connection error' });
       }
 
-      const userQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
-      connection.query(userQuery, [username, hash], (err, results) => {
-        connection.release();
+      // First, check if username exists in whoswifi database
+      const checkQuery = 'SELECT id FROM users WHERE username = ?';
+      connection.query(checkQuery, [username], (err, results) => {
         if (err) {
-          if (err.code === 'ER_DUP_ENTRY') {
-            return res.json({ success: false, message: 'Username already exists' });
-          }
+          connection.release();
           return res.json({ success: false, message: 'Database error' });
         }
 
-        const userId = results.insertId; // Get the ID from the first insert
+        if (results.length > 0) {
+          connection.release();
+          return res.json({ success: false, message: 'Username already exists' });
+        }
 
-        // Only proceed to chance database after successful whoswifi insert
-        chanceDb.getConnection((err, chanceConnection) => {
+        // If username doesn't exist, proceed with insert
+        const userQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
+        connection.query(userQuery, [username, hash], (err, results) => {
+          connection.release();
           if (err) {
-            return res.json({ success: false, message: 'Chance database connection error' });
+            return res.json({ success: false, message: 'Database error' });
           }
 
-          const chanceQuery = 'INSERT INTO user_data (whoswifi_id, username, color) VALUES (?, ?, ?)';
-          chanceConnection.query(chanceQuery, [userId, username, 'white'], (err, results) => {
-            chanceConnection.release();
+          const whoswifiId = results.insertId; // Get the ID from the whoswifi insert
+
+          // Only proceed to chance database after successful whoswifi insert
+          chanceDb.getConnection((err, chanceConnection) => {
             if (err) {
-              console.error('Chance query error:', err);
-              return res.json({ success: false, message: 'Error creating game data' });
+              return res.json({ success: false, message: 'Chance database connection error' });
             }
-            
-            res.json({ success: true, message: 'Registration successful!' });
+
+            const chanceQuery = 'INSERT INTO user_data (whoswifi_id, username, color) VALUES (?, ?, ?)';
+            chanceConnection.query(chanceQuery, [whoswifiId, username, 'white'], (err, results) => {
+              chanceConnection.release();
+              if (err) {
+                console.error('Chance query error:', err);
+                return res.json({ success: false, message: 'Error creating game data' });
+              }
+              
+              res.json({ success: true, message: 'Registration successful!' });
+            });
           });
         });
       });
