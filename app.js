@@ -31,7 +31,7 @@ const chanceDb = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: 'chance',
+  database: 'chance'
 });
 
 // Test the connection
@@ -681,11 +681,11 @@ app.get('/api/ip', function (req, res) {
   });
 });
 
-app.get('/tetris', function (req, res) {
-  fs.readFile('tetris.html', function (err, data) {
+app.get('/falling_blocks', function (req, res) {
+  fs.readFile('falling_blocks.html', function (err, data) {
     if (err) {
       res.writeHead(404, {'Content-Type': 'text/html'});
-      return res.end('Tetris not found');
+      return res.end('Falling Blocks not found');
     }
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.write(data);
@@ -698,18 +698,6 @@ app.get('/chess', function (req, res) {
     if (err) {
       res.writeHead(404, {'Content-Type': 'text/html'});
       return res.end('Chess not found');
-    }
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write(data);
-    return res.end();
-  });
-});
-
-app.get('/puzzle', function (req, res) {
-  fs.readFile('puzzle.html', function (err, data) {
-    if (err) {
-      res.writeHead(404, {'Content-Type': 'text/html'});
-      return res.end('Puzzle game not found');
     }
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.write(data);

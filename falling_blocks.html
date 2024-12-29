@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NES Tetris</title>
+    <title>Falling Blocks</title>
     <style>
         body {
             background-color: #000;
@@ -139,7 +139,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1 class="title">TETRIS</h1>
+    <h1 class="title">BLOCK PUZZLE</h1>
     <div class="game-container">
         <canvas id="gameCanvas" width="240" height="480"></canvas>
         <div class="game-info">
@@ -173,19 +173,19 @@
     </div>
 
     <script>
-        // Constants matching NES Tetris specifications
+        // Constants matching specifications
         const BLOCK_SIZE = 24 * 1.2;
         const GRID_WIDTH = 10;
         const GRID_HEIGHT = 20;
         const COLORS = [
             '#000000', // Empty cell
-            '#00E7E7', // Cyan - I
-            '#E7E700', // Yellow - O
-            '#AF00E7', // Purple - T
-            '#00E700', // Green - S
-            '#E70000', // Red - Z
-            '#0000E7', // Blue - J
-            '#E7AF00'  // Orange - L
+            '#4CAF50', // Green - I piece
+            '#2196F3', // Blue - O piece
+            '#9C27B0', // Purple - T piece
+            '#FF9800', // Orange - S piece
+            '#F44336', // Red - Z piece
+            '#607D8B', // Blue Grey - J piece
+            '#795548'  // Brown - L piece
         ];
 
         const PIECES = {
@@ -212,7 +212,7 @@
                   [0,0,0]]
         };
 
-        // NES speed curve (frames per grid cell)
+        // speed curve (frames per grid cell)
         const SPEED_CURVE = [
             48, 43, 38, 33, 28,
             23, 18, 13, 8, 6,
@@ -221,6 +221,15 @@
             2, 2, 2, 2, 2,
             2, 2, 2, 2, 1
         ];
+
+        const SCORING = {
+            singleLine: 100,    // Changed from Tetris scoring
+            doubleLine: 250,
+            tripleLine: 400,
+            quadLine: 600,
+            softDrop: 1,
+            hardDrop: 2
+        };
 
         let canvas, ctx, previewCanvas, previewCtx;
         let grid, score, level, lines;
@@ -242,7 +251,7 @@
             
             resetGame();
 
-            // NES Tetris keyboard controls
+            // keyboard controls
             document.addEventListener('keydown', handleInput);
             initMobileControls();
         }
@@ -274,7 +283,7 @@
             currentPiece = nextPiece;
             nextPiece = getRandomPiece();
             
-            // NES Tetris spawn position
+            // spawn position
             currentPiece.x = 3;
             currentPiece.y = 0;
             
@@ -323,7 +332,7 @@
             
             currentPiece.shape = rotated;
             
-            // NES Tetris wallkick - only try one position
+            // wallkick - only try one position
             if (checkCollision()) {
                 currentPiece.shape = matrix;
             }
@@ -335,7 +344,7 @@
             
             dropCounter += deltaTime;
             
-            // Use NES frame timing
+            // Use frame timing
             if (dropCounter > SPEED_CURVE[Math.min(level, 29)] * 16.67) {
                 hardDrop();
                 dropCounter = 0;
@@ -358,44 +367,49 @@
         }
 
         function merge() {
-            currentPiece.shape.forEach((row, y) => {
-                row.forEach((value, x) => {
+            let linesCleared = 0;
+            let rowsToCheck = new Set();
+            
+            // Find rows that need to be checked
+            currentPiece.shape.forEach((row, dy) => {
+                row.forEach((value, dx) => {
                     if (value) {
-                        const pieceY = currentPiece.y + y;
-                        if (pieceY < 0) {
-                            gameOver = true;
-                            return;
-                        }
-                        grid[pieceY][currentPiece.x + x] = 
-                            Object.keys(PIECES).indexOf(currentPiece.type) + 1;
+                        rowsToCheck.add(currentPiece.y + dy);
                     }
                 });
             });
-            
-            clearLines();
-        }
 
-        function clearLines() {
-            let linesCleared = 0;
-            
-            for (let y = GRID_HEIGHT - 1; y >= 0; y--) {
-                if (grid[y].every(cell => cell !== 0)) {
-                    grid.splice(y, 1);
-                    grid.unshift(Array(GRID_WIDTH).fill(0));
-                    linesCleared++;
-                    y++;
+            // Check for completed lines
+            Array.from(rowsToCheck).sort().forEach(y => {
+                if (y >= 0 && y < GRID_HEIGHT) {
+                    if (grid[y].every(cell => cell)) {
+                        linesCleared++;
+                        grid.splice(y, 1);
+                        grid.unshift(new Array(GRID_WIDTH).fill(0));
+                    }
                 }
-            }
-            
+            });
+
+            // Calculate score based on lines cleared
             if (linesCleared > 0) {
-                // NES scoring system
-                const points = [40, 100, 300, 1200];
-                score += points[linesCleared - 1] * (level + 1);
-                lines += linesCleared;
-                level = Math.floor(lines / 10);
+                switch(linesCleared) {
+                    case 1:
+                        score += SCORING.singleLine * (level + 1);
+                        break;
+                    case 2:
+                        score += SCORING.doubleLine * (level + 1);
+                        break;
+                    case 3:
+                        score += SCORING.tripleLine * (level + 1);
+                        break;
+                    case 4:
+                        score += SCORING.quadLine * (level + 1);
+                        break;
+                }
                 
-                updateScore();
+                lines += linesCleared;
                 updateLevel();
+                updateScore();
                 updateLines();
             }
         }
@@ -406,7 +420,12 @@
         }
 
         function updateLevel() {
-            document.getElementById('level').textContent = level;
+            const oldLevel = level;
+            level = Math.floor(lines / 8); // Changed from 10 to 8 lines per level
+            
+            if (level !== oldLevel) {
+                updateLevel();
+            }
         }
 
         function updateLines() {
