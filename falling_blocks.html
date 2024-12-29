@@ -360,6 +360,18 @@
             currentPiece.y++;
             if (checkCollision()) {
                 currentPiece.y--;
+                // Merge the piece into the grid
+                currentPiece.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            const gridY = currentPiece.y + y;
+                            if (gridY >= 0) {
+                                grid[gridY][currentPiece.x + x] = 
+                                    Object.keys(PIECES).indexOf(currentPiece.type) + 1;
+                            }
+                        }
+                    });
+                });
                 merge();
                 spawnPiece();
                 dropCounter = 0;
@@ -370,25 +382,14 @@
             let linesCleared = 0;
             let rowsToCheck = new Set();
             
-            // Find rows that need to be checked
-            currentPiece.shape.forEach((row, dy) => {
-                row.forEach((value, dx) => {
-                    if (value) {
-                        rowsToCheck.add(currentPiece.y + dy);
-                    }
-                });
-            });
-
-            // Check for completed lines
-            Array.from(rowsToCheck).sort().forEach(y => {
-                if (y >= 0 && y < GRID_HEIGHT) {
-                    if (grid[y].every(cell => cell)) {
-                        linesCleared++;
-                        grid.splice(y, 1);
-                        grid.unshift(new Array(GRID_WIDTH).fill(0));
-                    }
+            // Find rows that need to be checked (all rows where the piece was placed)
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                if (grid[y].every(cell => cell !== 0)) {
+                    linesCleared++;
+                    grid.splice(y, 1);
+                    grid.unshift(new Array(GRID_WIDTH).fill(0));
                 }
-            });
+            }
 
             // Calculate score based on lines cleared
             if (linesCleared > 0) {
