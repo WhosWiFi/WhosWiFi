@@ -24,5 +24,25 @@
 </head>
 <body>
     <div class="box"></div>
+
+    <script src="https://unpkg.com/motion"></script>
+    <script>
+        const { animate } = Motion;
+
+        animate(".box", 
+            { 
+                scale: [1, 1.2, 1],
+                rotate: [0, 180, 0],
+                borderRadius: ["0%", "50%", "0%"]
+            }, 
+            { 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        );
+
+        console.log("Box animation initialized");
+    </script>
 </body>
 </html>
