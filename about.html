@@ -7,8 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/motion"></script>
-  <script src="/animations.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+<script>
+  const { animate, scroll } = Motion
+</script>
   <script>
     // Immediately start checking login status
     const authCheck = fetch('/login/check', {
@@ -43,24 +45,6 @@
         console.error('Error during logout:', error);
       });
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // Animate the main title with fadeInUp
-      fadeInUp('.about-title');
-
-      // Stagger animate the about sections
-      staggerChildren('.about-container', '.about-section');
-
-      // Animate tech stack items
-      staggerChildren('.tech-stack', '.tech-item');
-
-      // Add hover effects to tech items
-      const techItems = document.querySelectorAll('.tech-item');
-      techItems.forEach(item => {
-        item.addEventListener('mouseenter', () => hoverScale(item));
-        item.addEventListener('mouseleave', () => resetScale(item));
-      });
-    });
   </script>
   <style>
     :root {
@@ -275,6 +259,7 @@
       <h2>[ TECH STACK ]</h2>
       <div class="tech-stack">
         <div class="tech-item">Node.js</div>
+        <script>animate('.tech-item', { opacity: 1 }, { rotate: 90})</script>
         <div class="tech-item">Express</div>
         <div class="tech-item">HTML5</div>
         <div class="tech-item">CSS3</div>
