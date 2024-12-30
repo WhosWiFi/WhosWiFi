@@ -19,30 +19,40 @@
             height: 100px;
             background: #64ffda;
             box-shadow: 0 0 15px rgba(100, 255, 218, 0.5);
+            opacity: 0; /* Start invisible */
         }
     </style>
 </head>
 <body>
     <div class="box"></div>
 
-    <script src="https://unpkg.com/motion"></script>
+    <!-- Use the specific version as recommended in docs -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
     <script>
-        const { animate } = Motion;
+        // Destructure from Motion global variable as shown in docs
+        const { animate, spring } = Motion;
 
-        animate(".box", 
-            { 
-                scale: [1, 1.2, 1],
-                rotate: [0, 180, 0],
-                borderRadius: ["0%", "50%", "0%"]
-            }, 
-            { 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-            }
-        );
-
-        console.log("Box animation initialized");
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Starting animation...');
+            
+            // Animate using spring type for more natural motion
+            animate(
+                ".box",
+                { 
+                    opacity: [0, 1],
+                    scale: [0.4, 1],
+                    rotate: [0, 360]
+                },
+                { 
+                    type: "spring",
+                    stiffness: 300,
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 1
+                }
+            );
+        });
     </script>
 </body>
 </html>
