@@ -1,4 +1,4 @@
-import { animate } from "https://cdn.jsdelivr.net/npm/framer-motion@11.11.11/dom/+esm";
+const { animate } = require("https://cdn.jsdelivr.net/npm/framer-motion@11.11.11/dom/+esm");
 
 animate(
   ".box",
