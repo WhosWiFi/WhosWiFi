@@ -4,41 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motion Animations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --neon-text-color: #64ffda;
+            --neon-border-color: #08f;
+        }
+
         body {
+            margin: 0;
+            padding-top: 60px;
+            background-color: #0a0a0a;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--neon-text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: #0a0a0a;
-            margin: 0;
         }
 
-        .box {
-            width: 100px;
-            height: 100px;
-            background: #64ffda;
-            box-shadow: 0 0 15px rgba(100, 255, 218, 0.5);
-            opacity: 0; /* Start invisible */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: stretch;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            border-bottom: 1px solid var(--neon-text-color);
+        }
+
+        .nav-links li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-links li:not(:last-child)::after {
+            content: "||";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-text-color);
+            opacity: 0.5;
+        }
+
+        .nav-links a {
+            color: var(--neon-text-color);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 1rem 0;
+            display: block;
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            background: rgba(100, 255, 218, 0.1);
+            text-shadow: none;
+        }
+
+        .whos-wifi {
+            font-size: 4rem;
+            color: var(--neon-text-color);
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+            opacity: 0;
         }
     </style>
 </head>
 <body>
-    <div class="box"></div>
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/apps">Apps</a></li>
+            <li><a href="/blog">Blog</a></li>
+            <li><a href="/shop">Shop</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/login">Login/Register</a></li>
+        </ul>
+    </nav>
 
-    <!-- Use the specific version as recommended in docs -->
+    <div class="whos-wifi">WhosWiFi</div>
+
     <script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
     <script>
-        // Destructure from Motion global variable as shown in docs
         const { animate, spring } = Motion;
 
-        // Wait for DOM to be ready
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Starting animation...');
             
-            // Animate using spring type for more natural motion
             animate(
-                ".box",
+                ".whos-wifi",
                 { 
                     opacity: [0, 1],
                     scale: [0.4, 1],
