@@ -718,6 +718,18 @@ app.get('chance_user', (req, res) => {
   }
 });
 
+app.get('/animations', function (req, res) {
+  fs.readFile('animations.html', function (err, data) {
+    if (err) {
+      res.writeHead(404, {'Content-Type': 'text/html'});
+      return res.end('Animations not found');
+    }
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(data);
+    return res.end();
+  });
+});
+
 app.listen(5123, function () {
   console.log('Example app listening on port 5123!');
 });
