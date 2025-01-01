@@ -26,7 +26,7 @@ const db = mysql.createPool({
   database: 'whoswifi'
 });
 
-// Add second connection pool for chance database
+// Add connection pool for chance database
 const chanceDb = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -34,7 +34,15 @@ const chanceDb = mysql.createPool({
   database: 'chance'
 });
 
-// Test the connection
+// Add connection pool for greed database
+const greedDb = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'greed'
+});
+
+// Test the whoswifi connection
 db.getConnection((err, connection) => {
   if (err) {
     console.error('Error connecting to the database:', err);
@@ -51,6 +59,16 @@ chanceDb.getConnection((err, connection) => {
     return;
   }
   console.log('Connected to Chance MySQL database');
+  connection.release();
+});
+
+// Test the greed connection
+greedDb.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to the greed database:', err);
+    return;
+  }
+  console.log('Connected to Greed MySQL database');
   connection.release();
 });
 
@@ -123,10 +141,27 @@ app.post('/register', (req, res) => {
               chanceConnection.release();
               if (err) {
                 console.error('Chance query error:', err);
-                return res.json({ success: false, message: 'Error creating game data' });
+                return res.json({ success: false, message: 'Error creating chance game data' });
               }
               
               res.json({ success: true, message: 'Registration successful!' });
+            });
+          });
+
+          greedDb.getConnection((err, greedConnection) => {
+            if (err) {
+                return res.json({ success: false, message: 'Greed database connection error' });
+            }
+        
+            const greedQuery = 'INSERT INTO user_data (whoswifi_id, username, balance, auto_amount, shop_items_owned) VALUES (?, ?, ?, ?, ?)';
+            greedConnection.query(greedQuery, [whoswifiId, username, 0, 1.0, '[]'], (err, results) => {
+                greedConnection.release();
+                if (err) {
+                    console.error('Greed query error:', err);
+                    return res.json({ success: false, message: 'Error creating greed game data' });
+                }
+                
+                res.json({ success: true, message: 'Registration successful!' });
             });
           });
         });

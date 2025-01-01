@@ -16,7 +16,7 @@
     // This will run before the page content loads
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const data = await authCheck; // Use the promise we started earlier
+        const data = await authCheck;
         const navLinks = document.querySelector('.nav-links');
         const loginItem = navLinks.querySelector('li:last-child');
         
