@@ -280,6 +280,16 @@
         </div>
       </a>
 
+      <a href="javascript:void(0)" onclick="launchGreed()" class="app-card">
+        <div class="app-link">Greed</div>
+        <div class="app-description">
+          A game of money, click to earn and upgrade to relax. 
+        </div>
+        <div class="security-status">
+          Status: [ENCRYPTED] | Protocol: [Classified]
+        </div>
+      </a>
+
       <a href="/ip" class="app-card">
         <div class="app-link">What is My IP Address?</div>
         <div class="app-description">
@@ -326,6 +336,11 @@
     function launchChance() {
       // Simply redirect to Chance, it will handle auth via cookie
       window.location.href = 'https://chance.whoswifi.com/';
+    }
+
+    function launchGreed() {
+      // Simply redirect to Greed, it will handle auth via cookie
+      window.location.href = 'https://greed.whoswifi.com/';
     }
   </script>
 </body>
