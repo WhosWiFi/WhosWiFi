@@ -10,6 +10,7 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const readline = require('readline');
 
 // Middleware
 app.use(express.json());
@@ -74,6 +75,34 @@ greedDb.getConnection((err, connection) => {
 
 // Add this near the top with your other constants
 const saltRounds = 10;
+
+// Add after other global variables
+let words = [];
+
+// Add this function after other initialization code
+async function loadWords() {
+  try {
+    const fileStream = fs.createReadStream('words.txt');
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+
+    for await (const line of rl) {
+      // Only add words that are 3 or more letters long
+      if (line.length >= 3) {
+        words.push(line.trim());
+      }
+    }
+    console.log(`Loaded ${words.length} words for Hangman game`);
+  } catch (error) {
+    console.error('Error loading words:', error);
+    words = ['error'];
+  }
+}
+
+// Call loadWords after app initialization
+loadWords();
 
 app.get('/register_page', function (req, res) {
   fs.readFile('registration.html', function (err, data) {
@@ -763,6 +792,24 @@ app.get('/animations', function (req, res) {
     res.write(data);
     return res.end();
   });
+});
+
+app.get('/hangman', function (req, res) {
+  fs.readFile('hangman.html', function (err, data) {
+    if (err) {
+      res.writeHead(404, {'Content-Type': 'text/html'});
+      return res.end('Hangman not found');
+    }
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(data);
+    return res.end();
+  });
+});
+
+// Add this new route before the app.listen line
+app.get('/api/word', (req, res) => {
+  const randomWord = words[Math.floor(Math.random() * words.length)];
+  res.json({ word: randomWord });
 });
 
 app.listen(5123, function () {
