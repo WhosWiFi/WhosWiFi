@@ -65,6 +65,27 @@
       white-space: pre;
       margin: 2rem 0;
     }
+    
+    .game-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .difficulty-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .difficulty-buttons button {
+        font-size: 0.8rem;
+    }
+
+    .difficulty-buttons button.active {
+        background: rgba(100, 255, 217, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -75,15 +96,24 @@
     <div id="guesses">Guessed letters: </div>
     <input type="text" id="guess-input" maxlength="1" />
     <div id="message"></div>
-    <button id="new-game">New Game</button>
+    <div class="game-controls">
+        <button id="new-game">New Game</button>
+        <div class="difficulty-buttons">
+            <button id="easy-mode">Easy</button>
+            <button id="medium-mode">Medium</button>
+            <button id="hard-mode">Hard</button>
+        </div>
+    </div>
   </div>
 
   <script>
     let word = '';
     let guessedLetters = new Set();
     let remainingGuesses = 6;
-    const hangmanStages = [
-      `
+    let difficulty = 'medium';
+    
+    const hangmanStagesHard = [
+        `
   +---+
   |   |
       |
@@ -91,23 +121,23 @@
       |
       |
 =========`,
-      `
-  +---+
-  |   |
-  O   |
-      |
-      |
-      |
-=========`,
-      `
+        `
   +---+
   |   |
   O   |
-  |   |
+      |
       |
       |
 =========`,
-      `
+        `
+  +---+
+  |   |
+  O   |
+ /    |
+      |
+      |
+=========`,
+        `
   +---+
   |   |
   O   |
@@ -115,7 +145,7 @@
       |
       |
 =========`,
-      `
+        `
   +---+
   |   |
   O   |
@@ -123,7 +153,7 @@
       |
       |
 =========`,
-      `
+        `
   +---+
   |   |
   O   |
@@ -131,7 +161,181 @@
  /    |
       |
 =========`,
-      `
+        `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========`
+    ];
+
+    const hangmanStagesMedium = [
+        `
+      
+      
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+      |
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /    |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========`
+    ];
+
+    const hangmanStagesEasy = [
+        `
+      
+      
+      |
+      |
+      |
+      |
+=========`,
+        `
+      
+      |
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +   
+      |
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+      |
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  |   |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /    |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+        `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+        `
   +---+
   |   |
   O   |
@@ -153,26 +357,30 @@
     }
 
     function updateDisplay() {
-      // Update word display
       const display = word
         .split('')
         .map(letter => guessedLetters.has(letter) ? letter : '_')
         .join(' ');
       document.getElementById('word-display').textContent = display;
       
-      // Update guessed letters
       document.getElementById('guesses').textContent = 
         'Guessed letters: ' + Array.from(guessedLetters).join(', ');
       
-      // Update hangman drawing
+      let stages;
+      switch(difficulty) {
+          case 'easy': stages = hangmanStagesEasy; break;
+          case 'medium': stages = hangmanStagesMedium; break;
+          default: stages = hangmanStagesHard;
+      }
+      
       document.getElementById('hangman-drawing').textContent = 
-        hangmanStages[6 - remainingGuesses];
+        stages[getDifficultyGuesses() - remainingGuesses];
     }
 
     async function startNewGame() {
       word = await getNewWord();
       guessedLetters.clear();
-      remainingGuesses = 6;
+      remainingGuesses = getDifficultyGuesses();
       document.getElementById('message').textContent = '';
       document.getElementById('guess-input').value = '';
       document.getElementById('guess-input').disabled = false;
@@ -206,6 +414,14 @@
       }
     }
 
+    function getDifficultyGuesses() {
+        switch(difficulty) {
+            case 'easy': return 12;
+            case 'medium': return 9;
+            default: return 6;
+        }
+    }
+
     // Event Listeners
     document.getElementById('new-game').addEventListener('click', startNewGame);
     
@@ -215,6 +431,24 @@
         event.target.value = '';
       }
     });
+
+    // Add difficulty selection logic
+    function setDifficulty(newDifficulty) {
+        difficulty = newDifficulty;
+        document.querySelectorAll('.difficulty-buttons button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`${newDifficulty}-mode`).classList.add('active');
+        startNewGame();
+    }
+
+    // Add difficulty button listeners
+    document.getElementById('easy-mode').addEventListener('click', () => setDifficulty('easy'));
+    document.getElementById('medium-mode').addEventListener('click', () => setDifficulty('medium'));
+    document.getElementById('hard-mode').addEventListener('click', () => setDifficulty('hard'));
+
+    // Set initial active difficulty
+    document.getElementById('medium-mode').classList.add('active');
 
     // Start first game
     startNewGame();
