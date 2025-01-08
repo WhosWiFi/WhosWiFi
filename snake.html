@@ -142,8 +142,7 @@
                 ctx.lineTo(canvas.width, i * gridSize);
                 ctx.stroke();
             }
-            
-            // Draw snake (now all one color)
+
             snake.forEach(segment => {
                 ctx.fillStyle = colors.snake;
                 ctx.beginPath();
