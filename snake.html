@@ -16,13 +16,28 @@
             font-family: 'Arial', sans-serif;
         }
 
+        h1 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            position: absolute;
+            top: 20px;
+            margin: 0;
+        }
+
         .game-container {
+            position: relative;
             display: flex;
-            gap: 20px;
+            justify-content: center;
             align-items: center;
+            width: 100%;
+            height: 100vh;
         }
 
         .score-board {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
             background-color: #2d2d2d;
             padding: 20px;
             border-radius: 10px;
@@ -34,31 +49,16 @@
             background-color: #2d2d2d;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            max-height: 80vh;
+            max-height: 85vh;
             width: auto;
             height: auto;
-        }
-
-        h1 {
-            color: #4CAF50;
-            font-size: 2.5em;
-            margin-bottom: 30px;
-        }
-
-        .score {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        .high-score {
-            color: #4CAF50;
         }
     </style>
 </head>
 <body>
     <h1>Snake Game</h1>
     <div class="game-container">
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <canvas id="gameCanvas" width="700" height="700"></canvas>
         <div class="score-board">
             <div class="score">Score: <span id="currentScore">0</span></div>
             <div class="high-score">High Score: <span id="highScore">0</span></div>
@@ -70,7 +70,7 @@
         const ctx = canvas.getContext('2d');
         
         // Updated game settings
-        const gridSize = 30;
+        const gridSize = 35;  // Adjusted for 700x700 canvas
         const tileCount = canvas.width / gridSize;
         const gameSpeed = 150;  // Constant speed that won't change
         let highScore = 0;
@@ -204,6 +204,11 @@
         
         // Handle keyboard input
         document.addEventListener('keydown', (event) => {
+            // Prevent arrow keys from scrolling the page
+            if (event.key.startsWith('Arrow')) {
+                event.preventDefault();
+            }
+            
             switch(event.key) {
                 case 'ArrowUp':
                     if (dy === 0) { dx = 0; dy = -1; }
