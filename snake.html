@@ -78,10 +78,7 @@
         // Updated colors
         const colors = {
             background: '#2d2d2d',
-            snake: {
-                head: '#4CAF50',
-                body: '#388E3C'
-            },
+            snake: '#4CAF50',  // Single color for snake (previously head color)
             food: '#FF5252',
             grid: '#333333'
         };
@@ -146,9 +143,9 @@
                 ctx.stroke();
             }
             
-            // Draw snake
-            snake.forEach((segment, index) => {
-                ctx.fillStyle = index === 0 ? colors.snake.head : colors.snake.body;
+            // Draw snake (now all one color)
+            snake.forEach(segment => {
+                ctx.fillStyle = colors.snake;
                 ctx.beginPath();
                 ctx.roundRect(
                     segment.x * gridSize + 1, 
