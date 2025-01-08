@@ -51,7 +51,7 @@
     // Power-up types
     const POWERUP_TYPES = {
       DOUBLE_SHOT: { color: 'blue', duration: 5000 },
-      SHIELD: { color: 'purple', duration: 8000 },
+      SHIELD: { color: 'purple', duration: 10000 },
       SPEED_BOOST: { color: 'orange', duration: 4000 }
     };
 
@@ -59,7 +59,8 @@
     player.powerUps = {
       doubleShot: false,
       shield: false,
-      speedBoost: false
+      speedBoost: false,
+      autoShoot: false
     };
 
     // Handle keyboard input
@@ -113,6 +114,15 @@
     }
 
     function applyPowerUp(type) {
+      if (type === 'SHIELD') {
+        player.powerUps.autoShoot = true;
+        // Start auto-shooting
+        const autoShootInterval = setInterval(shoot, 100); // Shoot every 100ms
+        setTimeout(() => {
+          player.powerUps.autoShoot = false;
+          clearInterval(autoShootInterval);
+        }, POWERUP_TYPES[type].duration);
+      }
       player.powerUps[type.toLowerCase()] = true;
       setTimeout(() => {
         player.powerUps[type.toLowerCase()] = false;
@@ -171,20 +181,22 @@
         
         // Check collision with player
         if (collision(player, powerUp)) {
-          if (powerUp.type === 'SPEED_BOOST') {  // Orange blocks
+          if (powerUp.type === 'SPEED_BOOST' || powerUp.type === 'DOUBLE_SHOT') {  // Orange and blue blocks
             lives--;
             if (lives <= 0) {
               gameOver = true;
             }
             return false;
           }
+          // Purple block (SHIELD) gives auto-shoot power-up
           applyPowerUp(powerUp.type);
           return false;
         }
         
         // Check collision with bullets
         const hitByBullet = bullets.some(bullet => {
-          if (collision(bullet, powerUp) && powerUp.type === 'SPEED_BOOST') {  // Orange blocks
+          if (collision(bullet, powerUp) && 
+             (powerUp.type === 'SPEED_BOOST' || powerUp.type === 'DOUBLE_SHOT')) {  // Orange and blue blocks
             bullets = bullets.filter(b => b !== bullet);
             score += 10;
             return true;
