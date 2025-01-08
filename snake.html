@@ -9,6 +9,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             background-color: #1a1a1a;
             color: #ffffff;
@@ -33,6 +34,9 @@
             background-color: #2d2d2d;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-height: 80vh;
+            width: auto;
+            height: auto;
         }
 
         h1 {
@@ -54,7 +58,7 @@
 <body>
     <h1>Snake Game</h1>
     <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="800"></canvas>
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
         <div class="score-board">
             <div class="score">Score: <span id="currentScore">0</span></div>
             <div class="high-score">High Score: <span id="highScore">0</span></div>
@@ -66,7 +70,7 @@
         const ctx = canvas.getContext('2d');
         
         // Updated game settings
-        const gridSize = 40;
+        const gridSize = 30;
         const tileCount = canvas.width / gridSize;
         const gameSpeed = 150;  // Constant speed that won't change
         let highScore = 0;
