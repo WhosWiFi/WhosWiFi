@@ -64,9 +64,14 @@
 
     // Handle keyboard input
     window.addEventListener('keydown', (e) => {
+      if (!keys[e.key]) {  // Only shoot if key wasn't already pressed
+        if (e.code === 'Space') {
+          shoot();
+        }
+      }
       keys[e.key] = true;
       // Prevent space bar from scrolling
-      if(e.code === 'Space') {
+      if (e.code === 'Space') {
         e.preventDefault();
       }
     });
@@ -159,9 +164,6 @@
       if ((keys['ArrowRight'] || keys['d']) && player.x < canvas.width - player.width) {
         player.x += currentSpeed;
       }
-      if (keys[' ']) {
-        shoot();
-      }
 
       // Update power-ups
       powerUps = powerUps.filter(powerUp => {
@@ -169,7 +171,28 @@
         
         // Check collision with player
         if (collision(player, powerUp)) {
+          if (powerUp.type === 'SPEED_BOOST') {  // Orange blocks
+            lives--;
+            if (lives <= 0) {
+              gameOver = true;
+            }
+            return false;
+          }
           applyPowerUp(powerUp.type);
+          return false;
+        }
+        
+        // Check collision with bullets
+        const hitByBullet = bullets.some(bullet => {
+          if (collision(bullet, powerUp) && powerUp.type === 'SPEED_BOOST') {  // Orange blocks
+            bullets = bullets.filter(b => b !== bullet);
+            score += 10;
+            return true;
+          }
+          return false;
+        });
+        
+        if (hitByBullet) {
           return false;
         }
         
