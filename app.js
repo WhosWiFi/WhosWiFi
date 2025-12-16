@@ -101,6 +101,14 @@ async function loadWords() {
   }
 }
 
+app.get('/.htaccess', function (req, res) {
+  fs.readFile('htaccess.html', function (err, data) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(data);
+      return res.end();
+    });
+});
+
 // Call loadWords after app initialization
 loadWords();
 
